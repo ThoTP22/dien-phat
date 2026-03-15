@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPublicShowroom } from "@/services/showroom.service";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Showroom & Liên hệ",
   description:

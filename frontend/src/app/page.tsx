@@ -9,6 +9,8 @@ import { fetchPublicProducts } from "@/services/product.service";
 import { HeroVideo } from "@/components/hero/HeroVideo";
 import { HoverImageCarousel } from "@/components/product/HoverImageCarousel";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Điều hòa Midea tại Long Xuyên",
   description:

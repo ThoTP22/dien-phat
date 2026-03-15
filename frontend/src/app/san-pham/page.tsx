@@ -16,6 +16,8 @@ function getSpecValue(
   return `${found.value}${found.unit ? ` ${found.unit}` : ""}`.trim();
 }
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Sản phẩm điều hòa Midea",
   description:

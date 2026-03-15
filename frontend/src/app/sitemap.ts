@@ -4,6 +4,8 @@ import { fetchPublicCategories } from "@/services/category.service";
 import { fetchPublicProducts } from "@/services/product.service";
 import { fetchPublicPosts } from "@/services/post.service";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = absoluteUrl("");
 
