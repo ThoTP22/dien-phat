@@ -15,8 +15,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const getMetadataBase = (): URL => {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || "https://dienphat-midea.vn";
+  const url = raw.startsWith("http") ? raw : `https://${raw}`;
+  try {
+    return new URL(url);
+  } catch {
+    return new URL("https://dienphat-midea.vn");
+  }
+};
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dienphat-midea.vn"),
+  metadataBase: getMetadataBase(),
   title: {
     default: "Gold Shop Midea - Điện Phát",
     template: "%s | Gold Shop Midea Điện Phát",

@@ -1,5 +1,6 @@
 import { apiEndpoints } from "@/lib/api";
 import { adminHttp } from "@/lib/admin-http";
+import { fetchWithTimeout } from "@/lib/fetch-api";
 
 export interface ShowroomAddress {
   street?: string;
@@ -35,7 +36,7 @@ export interface Showroom {
 }
 
 export async function fetchPublicShowroom(): Promise<Showroom | null> {
-  const res = await fetch(apiEndpoints.showroom.public, {
+  const res = await fetchWithTimeout(apiEndpoints.showroom.public, {
     next: { revalidate: 60 }
   });
 

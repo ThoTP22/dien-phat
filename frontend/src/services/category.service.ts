@@ -1,5 +1,6 @@
 import { apiEndpoints } from "@/lib/api";
 import { adminHttp } from "@/lib/admin-http";
+import { fetchWithTimeout } from "@/lib/fetch-api";
 
 export interface CategoryParent {
   id: string;
@@ -44,7 +45,7 @@ export async function fetchPublicCategories(params?: {
     });
   }
 
-  const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+  const res = await fetchWithTimeout(url.toString(), { next: { revalidate: 60 } });
   const json = await res.json();
 
   if (!res.ok || !json.success) {
@@ -55,7 +56,7 @@ export async function fetchPublicCategories(params?: {
 }
 
 export async function fetchPublicCategoryDetail(slug: string): Promise<Category> {
-  const res = await fetch(apiEndpoints.categories.publicDetail(slug), {
+  const res = await fetchWithTimeout(apiEndpoints.categories.publicDetail(slug), {
     next: { revalidate: 60 }
   });
   const json = await res.json();

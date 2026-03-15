@@ -44,7 +44,7 @@ export default async function Home() {
 
   const categorySections: { cat: Awaited<ReturnType<typeof fetchPublicCategories>>["items"][0]; parent?: Awaited<ReturnType<typeof fetchPublicCategories>>["items"][0]; products: any[] }[] = [];
 
-  for (const root of rootCategories) {
+  const sectionPromises = rootCategories.map(async (root) => {
     try {
       const childrenRes = await fetchPublicCategories({ parentId: root.id, limit: 20 });
       const children = childrenRes.items;
@@ -65,16 +65,15 @@ export default async function Home() {
             }
           })
         );
-        categorySections.push(...childSections);
-      } else {
-        const products = await fetchPublicProducts({
-          page: 1,
-          limit: 6,
-          categoryId: root.id,
-          includeSubcategories: true,
-        });
-        categorySections.push({ cat: root, products: products.items });
+        return childSections;
       }
+      const products = await fetchPublicProducts({
+        page: 1,
+        limit: 6,
+        categoryId: root.id,
+        includeSubcategories: true,
+      });
+      return [{ cat: root, products: products.items }];
     } catch {
       try {
         const products = await fetchPublicProducts({
@@ -83,12 +82,15 @@ export default async function Home() {
           categoryId: root.id,
           includeSubcategories: true,
         });
-        categorySections.push({ cat: root, products: products.items });
+        return [{ cat: root, products: products.items }];
       } catch {
-        categorySections.push({ cat: root, products: [] });
+        return [{ cat: root, products: [] }];
       }
     }
-  }
+  });
+
+  const sectionResults = await Promise.all(sectionPromises);
+  sectionResults.forEach((sections) => categorySections.push(...sections));
 
   const mapEmbedSrc = (() => {
     const raw = (showroom?.mapUrl || "").trim();

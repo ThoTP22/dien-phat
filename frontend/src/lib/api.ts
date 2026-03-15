@@ -1,3 +1,5 @@
+// Client: dùng /api (proxy qua rewrites, cùng origin, không CORS)
+// Server: dùng API_SERVER_URL hoặc NEXT_PUBLIC_API_BASE_URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
 
 function getApiBase(): string {
@@ -5,9 +7,10 @@ function getApiBase(): string {
     return API_BASE_URL.startsWith("/") ? window.location.origin + API_BASE_URL : API_BASE_URL;
   }
   const internalUrl = process.env.API_SERVER_URL;
-  if (internalUrl) return internalUrl;
+  if (internalUrl && internalUrl.startsWith("http")) return internalUrl;
+  if (API_BASE_URL.startsWith("http")) return API_BASE_URL;
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  return API_BASE_URL.startsWith("/") ? base + API_BASE_URL : API_BASE_URL;
+  return base.replace(/\/$/, "") + (API_BASE_URL.startsWith("/") ? API_BASE_URL : "/" + API_BASE_URL);
 }
 
 const base = () => getApiBase();

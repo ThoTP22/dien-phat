@@ -1,5 +1,6 @@
 import { apiEndpoints } from "@/lib/api";
 import { adminHttp } from "@/lib/admin-http";
+import { fetchWithTimeout } from "@/lib/fetch-api";
 
 export type PostStatus = "draft" | "published" | "hidden";
 
@@ -50,14 +51,14 @@ export async function fetchPublicPosts(params?: {
       if (v !== undefined && v !== null && v !== "") url.searchParams.append(k, String(v));
     });
   }
-  const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+  const res = await fetchWithTimeout(url.toString(), { next: { revalidate: 60 } });
   const json = await res.json();
   if (!res.ok || !json.success) throw new Error(json.message || "Không thể tải bài viết");
   return json.data as PaginatedPosts;
 }
 
 export async function fetchPublicPostDetail(slug: string): Promise<Post> {
-  const res = await fetch(apiEndpoints.posts.publicDetail(slug), { next: { revalidate: 60 } });
+  const res = await fetchWithTimeout(apiEndpoints.posts.publicDetail(slug), { next: { revalidate: 60 } });
   const json = await res.json();
   if (!res.ok || !json.success) throw new Error(json.message || "Không thể tải bài viết");
   return json.data as Post;

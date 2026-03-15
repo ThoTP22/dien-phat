@@ -87,6 +87,15 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan("dev"));
 
+// Vercel serverless: req.url có thể thiếu prefix /api (vd: /v1/showroom thay vì /api/v1/showroom)
+app.use((req, _res, next) => {
+  const u = req.url?.split("?")[0] ?? "";
+  if (u && !u.startsWith("/api")) {
+    (req as { url?: string }).url = "/api" + (u.startsWith("/") ? u : "/" + u) + (req.url?.includes("?") ? "?" + req.url.split("?")[1] : "");
+  }
+  next();
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({
     success: true,

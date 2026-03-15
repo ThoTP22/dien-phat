@@ -1,5 +1,6 @@
 import { apiEndpoints } from "@/lib/api";
 import { adminHttp } from "@/lib/admin-http";
+import { fetchWithTimeout } from "@/lib/fetch-api";
 
 export interface ProductImage {
   url: string;
@@ -52,7 +53,7 @@ export interface ProductSegment {
 }
 
 export async function fetchPublicProductSegments(): Promise<ProductSegment[]> {
-  const res = await fetch(apiEndpoints.products.segments, { next: { revalidate: 60 } });
+  const res = await fetchWithTimeout(apiEndpoints.products.segments, { next: { revalidate: 60 } });
   const json = await res.json();
 
   if (!res.ok || !json.success) {
@@ -88,7 +89,14 @@ export async function fetchPublicProducts(params?: {
     });
   }
 
-  const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(url.toString(), { next: { revalidate: 60 } });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[fetchPublicProducts] fetch failed:", url.toString(), msg);
+    throw new Error(`Không thể kết nối API (${msg}). Kiểm tra API_SERVER_URL trên Vercel.`);
+  }
   const json = await res.json();
 
   if (!res.ok || !json.success) {
@@ -99,7 +107,7 @@ export async function fetchPublicProducts(params?: {
 }
 
 export async function fetchPublicProductDetail(slug: string): Promise<Product> {
-  const res = await fetch(apiEndpoints.products.publicDetail(slug), {
+  const res = await fetchWithTimeout(apiEndpoints.products.publicDetail(slug), {
     cache: "no-store"
   });
   const json = await res.json();
