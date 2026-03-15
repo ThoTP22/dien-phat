@@ -3,7 +3,6 @@ services:
     name: gold-shop-backend
     runtime: node
     region: singapore
-    rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:

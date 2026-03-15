@@ -19,7 +19,7 @@ Hướng dẫn triển khai backend Express (Gold Shop Midea) lên [Render](http
 | **Name** | `gold-shop-backend` (hoặc tên bạn chọn) |
 | **Region** | Singapore (gần VN) |
 | **Branch** | `main` |
-| **Root Directory** | `backend` |
+| **Root Directory** | (để trống - dùng package.json gốc) |
 | **Runtime** | Node |
 | **Build Command** | `npm install && npm run build` |
 | **Start Command** | `npm start` |
@@ -29,14 +29,7 @@ Hướng dẫn triển khai backend Express (Gold Shop Midea) lên [Render](http
 
 ### Nếu lỗi "Could not read package.json"
 
-Render đang build ở thư mục sai. Kiểm tra:
-
-1. Vào **Settings** > **Build & Deploy**
-2. Tìm **Root Directory**
-3. Đặt chính xác: `backend` (không có `/` đầu hoặc cuối)
-4. **Save Changes** > **Manual Deploy** > **Deploy latest commit**
-
-Hoặc tạo service mới từ **Blueprint**: **New** > **Blueprint** > chọn repo, Render sẽ đọc `render.yaml`.
+Đã thêm `package.json` ở thư mục gốc repo - build chạy từ root và gọi backend qua scripts. Đảm bảo **Root Directory** trên Render để trống (xóa nếu đã set `backend`).
 
 ---
 
