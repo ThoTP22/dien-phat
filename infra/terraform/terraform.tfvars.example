@@ -1,0 +1,9 @@
+# Copy file này thành terraform.tfvars và điền giá trị
+
+aws_region      = "ap-southeast-1"
+project_name    = "gold-shop-midea"
+environment     = "prod"
+instance_type   = "t3.small"
+
+# CIDR cho phép SSH (ví dụ: "1.2.3.4/32"). Để "" nếu chỉ dùng AWS SSM
+ssh_allowed_cidr = ""

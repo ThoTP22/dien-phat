@@ -1,0 +1,27 @@
+# Env & secrets
+.env
+.env.deploy
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Build outputs
+frontend/.next/
+frontend/out/
+backend/dist/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Root-level markdown docs
+/*.md
+
+# IDE & OS
+.idea/
+.vscode/
+.DS_Store
+*.log
