@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# hero video (hosted on S3, qua nang de commit)
+/public/hero-section.mp4
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

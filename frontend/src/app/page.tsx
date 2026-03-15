@@ -102,7 +102,12 @@ export default async function Home() {
       <section className="relative w-full overflow-hidden bg-black">
         <div className="relative aspect-video w-full md:aspect-auto md:min-h-screen">
           <div className="absolute inset-0">
-            <HeroVideo className="h-full w-full object-cover" src="/hero-section.mp4" />
+            {process.env.NEXT_PUBLIC_HERO_VIDEO_URL && (
+              <HeroVideo
+                className="h-full w-full object-cover"
+                src={process.env.NEXT_PUBLIC_HERO_VIDEO_URL}
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/15" />
           </div>
         </div>
