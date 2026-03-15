@@ -27,6 +27,17 @@ Hướng dẫn triển khai backend Express (Gold Shop Midea) lên [Render](http
 
 **Lưu ý**: Free tier sẽ sleep sau 15 phút không có request. Request đầu tiên sau khi sleep có thể mất 30–60 giây để wake up.
 
+### Nếu lỗi "Could not read package.json"
+
+Render đang build ở thư mục sai. Kiểm tra:
+
+1. Vào **Settings** > **Build & Deploy**
+2. Tìm **Root Directory**
+3. Đặt chính xác: `backend` (không có `/` đầu hoặc cuối)
+4. **Save Changes** > **Manual Deploy** > **Deploy latest commit**
+
+Hoặc tạo service mới từ **Blueprint**: **New** > **Blueprint** > chọn repo, Render sẽ đọc `render.yaml`.
+
 ---
 
 ## Bước 3: Environment Variables
