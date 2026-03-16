@@ -7,9 +7,21 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export function PublicHeader() {
+  const [phone, setPhone] = useState<string>("");
+
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [atTop, setAtTop] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/v1/showroom")
+      .then((r) => r.json())
+      .then((json) => {
+        const p = (json?.data?.phone || "").toString().trim();
+        if (p) setPhone(p);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -29,6 +41,10 @@ export function PublicHeader() {
     }
     return "sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur";
   }, [isHome, atTop]);
+
+  const fallbackHotline = (process.env.NEXT_PUBLIC_HOTLINE || "").trim();
+  const tel = phone || fallbackHotline || "0900000000";
+  const telHref = `tel:${tel.replace(/\s+/g, "")}`;
 
   return (
     <header className={headerClassName}>
@@ -71,7 +87,7 @@ export function PublicHeader() {
         </nav>
 
         <Button asChild size="sm" variant={isHome && atTop ? "secondary" : "default"} className={isHome && atTop ? "bg-white/15 text-white hover:bg-white/25" : ""}>
-          <Link href="tel:0900000000">Gọi tư vấn</Link>
+          <Link href={telHref}>Gọi tư vấn</Link>
         </Button>
       </div>
     </header>

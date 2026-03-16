@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPublicProductDetail } from "@/services/product.service";
+import { fetchPublicShowroom } from "@/services/showroom.service";
 import { sanitizeRichTextHtml } from "@/lib/sanitize-html";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
@@ -51,6 +52,18 @@ export default async function SanPhamChiTietPage({
   const { slug } = await params;
 
   try {
+    let showroomPhone = "";
+    try {
+      const showroom = await fetchPublicShowroom();
+      showroomPhone = (showroom?.phone || "").trim();
+    } catch {
+      showroomPhone = "";
+    }
+    const fallbackHotline = (process.env.NEXT_PUBLIC_HOTLINE || "").trim();
+    const tel = showroomPhone || fallbackHotline || "0900000000";
+    const hotlineTel = `tel:${tel.replace(/\s+/g, "")}`;
+    const hotlineLabel = tel;
+
     const p = await fetchPublicProductDetail(slug);
     const safeDescription = sanitizeRichTextHtml(p.description || "");
 
@@ -195,7 +208,7 @@ export default async function SanPhamChiTietPage({
                 </p>
                 <div className="flex flex-col gap-2">
                   <Button asChild>
-                    <a href="tel:0900000000">Gọi ngay: 0900 000 000</a>
+                    <a href={hotlineTel}>{`Gọi ngay: ${hotlineLabel}`}</a>
                   </Button>
                   <Button asChild variant="outline">
                     <Link href="/showroom">Xem showroom & liên hệ</Link>

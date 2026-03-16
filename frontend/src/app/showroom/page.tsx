@@ -122,7 +122,15 @@ export default async function ShowroomPage() {
                 dùng kênh liên hệ nhanh trên website.
               </p>
               <Button asChild>
-                <a href={showroom?.phone ? `tel:${showroom.phone}` : "tel:0900000000"}>
+                <a
+                  href={
+                    showroom?.phone
+                      ? `tel:${showroom.phone.replace(/\s+/g, "")}`
+                      : (process.env.NEXT_PUBLIC_HOTLINE || "").trim()
+                        ? `tel:${(process.env.NEXT_PUBLIC_HOTLINE || "").trim().replace(/\s+/g, "")}`
+                        : "tel:0900000000"
+                  }
+                >
                   Gọi tư vấn
                 </a>
               </Button>
