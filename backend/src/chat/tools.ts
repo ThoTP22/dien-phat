@@ -117,6 +117,7 @@ export async function executeTool(call: ToolCall): Promise<ToolResult> {
               name: p.name,
               slug: p.slug,
               modelCode: p.modelCode,
+              imageUrl: p.images?.find((x: any) => x.isPrimary)?.url || p.images?.[0]?.url,
               shortDescription: p.shortDescription ? truncateText(p.shortDescription) : undefined,
               featured: p.featured,
               isVisible: p.isVisible

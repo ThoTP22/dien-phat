@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
+type Suggestion = { name: string; slug: string; shortDescription?: string; imageUrl?: string };
 
 function clamp(s: string, max: number) {
   if (s.length <= max) return s;
@@ -18,6 +19,7 @@ export function ChatWidget() {
       content: "Chào bạn, mình có thể hỗ trợ tư vấn sản phẩm, showroom và tin tức. Bạn cần hỏi gì ạ?"
     }
   ]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -38,6 +40,7 @@ export function ChatWidget() {
     const nextMessages: ChatMsg[] = [...messages, { role: "user", content: clamp(text, 1000) }];
     setMessages(nextMessages);
     setLoading(true);
+    setSuggestions([]);
 
     try {
       const res = await fetch("/api/v1/chat", {
@@ -50,7 +53,9 @@ export function ChatWidget() {
         throw new Error(json?.message || "Không thể gửi tin nhắn");
       }
       const reply = (json?.data?.reply || "").toString().trim();
+      const sug = Array.isArray(json?.data?.suggestions) ? (json.data.suggestions as Suggestion[]) : [];
       setMessages((prev) => [...prev, { role: "assistant", content: reply || "Mình chưa có đủ thông tin để trả lời." }]);
+      setSuggestions(sug.slice(0, 2));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -61,7 +66,7 @@ export function ChatWidget() {
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {open ? (
-        <div className="w-[92vw] max-w-[380px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl">
+        <div className="flex h-[78vh] w-[92vw] max-w-[420px] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl sm:h-[64vh]">
           <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
             <div className="text-sm font-semibold text-zinc-900">Tư vấn nhanh</div>
             <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>
@@ -69,7 +74,7 @@ export function ChatWidget() {
             </Button>
           </div>
 
-          <div className="max-h-[56vh] overflow-y-auto px-3 py-3">
+          <div className="flex-1 overflow-y-auto px-3 py-3">
             <div className="space-y-2">
               {messages.map((m, idx) => (
                 <div
@@ -84,6 +89,39 @@ export function ChatWidget() {
                   {m.content}
                 </div>
               ))}
+
+              {suggestions.length ? (
+                <div className="space-y-2 pt-1">
+                  <div className="text-xs font-semibold text-zinc-700">Gợi ý sản phẩm</div>
+                  {suggestions.map((s) => (
+                    <a
+                      key={s.slug}
+                      href={`/san-pham/${s.slug}`}
+                      className="block rounded-xl border border-zinc-200 bg-white p-2 hover:bg-zinc-50"
+                    >
+                      <div className="flex gap-2">
+                        {s.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={s.imageUrl}
+                            alt={s.name}
+                            className="h-12 w-12 shrink-0 rounded-md border border-zinc-200 object-cover"
+                          />
+                        ) : (
+                          <div className="h-12 w-12 shrink-0 rounded-md border border-zinc-200 bg-zinc-100" />
+                        )}
+                        <div className="min-w-0">
+                          <div className="line-clamp-2 text-sm font-semibold text-zinc-900">{s.name}</div>
+                          {s.shortDescription ? (
+                            <div className="line-clamp-2 text-xs text-zinc-600">{s.shortDescription}</div>
+                          ) : null}
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+
               {loading ? (
                 <div className="mr-auto max-w-[92%] rounded-2xl bg-zinc-100 px-3 py-2 text-sm text-zinc-600">
                   Đang trả lời...
