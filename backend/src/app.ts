@@ -60,6 +60,8 @@ import {
   updatePostHandler
 } from "./controllers/post.controller";
 import { createPostSchema, listPostsQuerySchema, updatePostSchema } from "./validators/post.validator";
+import { chatHandler } from "./controllers/chat.controller";
+import { rateLimit } from "./middlewares/rateLimit.middleware";
 
 const app = express();
 
@@ -103,6 +105,9 @@ app.get("/api/health", (_req, res) => {
     data: { uptime: process.uptime() }
   });
 });
+
+// Chatbot (public)
+app.post("/api/v1/chat", rateLimit({ windowMs: 15 * 60 * 1000, max: 30, keyPrefix: "chat" }), chatHandler);
 
 // Auth routes theo api-spec.md
 app.post("/api/v1/auth/login", validateRequest(loginSchema, "body"), login);
