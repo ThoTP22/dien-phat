@@ -38,6 +38,50 @@ function wantsProducts(text: string) {
   );
 }
 
+function normalizeTerm(s: string) {
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[?!.:,;()]/g, "");
+}
+
+const glossary: Record<string, string> = {
+  inverter:
+    "Inverter là công nghệ điều khiển máy nén chạy êm và ổn định hơn, giúp tiết kiệm điện khi phòng đã đạt nhiệt độ. Thường phù hợp nếu bạn dùng máy lạnh nhiều giờ mỗi ngày.",
+  btu: "BTU là đơn vị công suất làm lạnh. BTU càng cao thì làm mát được phòng càng lớn. Tham khảo nhanh: 9000BTU ~10–15m², 12000BTU ~15–20m², 18000BTU ~20–30m², 24000BTU ~30–40m² (tuỳ nắng, trần cao, số người).",
+  hp: "HP (hay 'ngựa') là cách gọi công suất: 1HP ~ 9000BTU, 1.5HP ~ 12000BTU, 2HP ~ 18000BTU, 2.5HP ~ 24000BTU.",
+  mono:
+    "Mono (non-inverter) là máy không inverter. Giá thường rẻ hơn nhưng có thể tốn điện hơn nếu chạy lâu; máy nén thường bật/tắt theo nhiệt độ.",
+  "1 chieu": "Máy lạnh 1 chiều chỉ làm lạnh.",
+  "2 chieu": "Máy lạnh 2 chiều có làm lạnh và sưởi (ít dùng ở miền Nam).",
+  r32: "R32 là môi chất lạnh phổ biến hiện nay, hiệu suất tốt và thân thiện môi trường hơn so với R410A.",
+  r410a: "R410A là môi chất lạnh đời trước, vẫn dùng được nhưng hiện nay nhiều mẫu mới chuyển sang R32.",
+  db: "dB là đơn vị độ ồn. dB càng thấp thì máy chạy càng êm (quan trọng với phòng ngủ).",
+  "bao hanh":
+    "Bảo hành thường tách: bảo hành máy nén và bảo hành linh kiện. Tuỳ model sẽ có thời gian khác nhau."
+};
+
+function tryAnswerGlossary(text: string): string | null {
+  const t = normalizeTerm(text);
+  const has = (k: string) => t.includes(k);
+
+  const answers: string[] = [];
+  if (has("inverter")) answers.push(glossary.inverter);
+  if (has("btu")) answers.push(glossary.btu);
+  if (has("hp") || has("ngua") || has("ngựa")) answers.push(glossary.hp);
+  if (has("mono") || has("non inverter") || has("non-inverter")) answers.push(glossary.mono);
+  if (has("1 chieu") || has("1 chiều")) answers.push(glossary["1 chieu"]);
+  if (has("2 chieu") || has("2 chiều")) answers.push(glossary["2 chieu"]);
+  if (has("r32")) answers.push(glossary.r32);
+  if (has("r410a") || has("r410")) answers.push(glossary.r410a);
+  if (has("db") || has("do on") || has("độ ồn")) answers.push(glossary.db);
+  if (has("bao hanh") || has("bảo hành")) answers.push(glossary["bao hanh"]);
+
+  if (!answers.length) return null;
+  return answers.join("\n\n");
+}
+
 export const chatHandler = async (req: Request, res: Response) => {
   try {
     if (!process.env.GEMINI_API_KEY) {
@@ -65,6 +109,17 @@ export const chatHandler = async (req: Request, res: Response) => {
     }
 
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+
+    // Trả lời nhanh cho câu hỏi thuật ngữ (không cần Gemini)
+    const glossaryAnswer = tryAnswerGlossary(lastUser);
+    if (glossaryAnswer) {
+      return res.json({
+        success: true,
+        message: "OK",
+        data: { reply: glossaryAnswer, toolTrace: [], suggestions: [] }
+      });
+    }
+
     let suggestions: Array<{ name: string; slug: string; shortDescription?: string; imageUrl?: string }> = [];
     if (wantsProducts(lastUser)) {
       const capacityBtu = parseBtu(lastUser);
