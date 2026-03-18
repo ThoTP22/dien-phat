@@ -115,7 +115,7 @@ export function ChatWidget() {
       const res = await fetch("/api/v1/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages })
+        body: JSON.stringify({ messages: nextMessages, context: { suggestions } })
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.success) {

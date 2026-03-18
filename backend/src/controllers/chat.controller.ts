@@ -8,8 +8,21 @@ const messageSchema = z.object({
   content: z.string().min(1).max(4000)
 });
 
+const suggestionSchema = z.object({
+  name: z.string(),
+  slug: z.string(),
+  shortDescription: z.string().optional(),
+  imageUrl: z.string().optional()
+});
+
 const chatSchema = z.object({
-  messages: z.array(messageSchema).min(1).max(20)
+  messages: z.array(messageSchema).min(1).max(20),
+  context: z
+    .object({
+      suggestions: z.array(suggestionSchema).max(6).optional()
+    })
+    .partial()
+    .optional()
 });
 
 function totalChars(messages: Array<{ content: string }>) {
@@ -100,7 +113,9 @@ export const chatHandler = async (req: Request, res: Response) => {
       });
     }
 
-    const { messages } = parsed.data;
+    const { messages, context } = parsed.data;
+    const previousSuggestions =
+      (Array.isArray(context?.suggestions) ? context?.suggestions : undefined) ?? [];
     if (totalChars(messages) > 12000) {
       return res.status(413).json({
         success: false,
@@ -120,8 +135,10 @@ export const chatHandler = async (req: Request, res: Response) => {
       });
     }
 
-    let suggestions: Array<{ name: string; slug: string; shortDescription?: string; imageUrl?: string }> = [];
-    if (wantsProducts(lastUser)) {
+    let suggestions: Array<{ name: string; slug: string; shortDescription?: string; imageUrl?: string }> =
+      previousSuggestions.slice(0, 2);
+
+    if (!suggestions.length && wantsProducts(lastUser)) {
       const capacityBtu = parseBtu(lastUser);
       const technology = lastUser.toLowerCase().includes("inverter") ? "inverter" : undefined;
       const toolRes = await executeTool({
@@ -146,18 +163,26 @@ export const chatHandler = async (req: Request, res: Response) => {
       }
     }
 
+    const isCompare =
+      /so sánh/i.test(lastUser) || /so sanh/i.test(lastUser) || /compare/i.test(lastUser);
+
+    const suggestionsForModel = suggestions;
+
     const systemInstructionText = [
-      "Bạn là chatbot tư vấn của showroom Gold Shop Midea Điện Phát.",
-      "Trả lời bằng tiếng Việt, ngắn gọn, lịch sự.",
-      "Khi cần thông tin thực tế về sản phẩm/danh mục/showroom/bài viết, hãy dùng tool đã cung cấp.",
-      "Không bịa giá/khuyến mãi/địa chỉ nếu tool không trả về.",
-      "Nếu thiếu dữ liệu, hỏi lại 1-2 câu để làm rõ nhu cầu (công suất BTU, inverter, phòng bao nhiêu m2...).",
-      "Nếu người dùng hỏi về các sản phẩm, hãy sử dụng tool để trả lời.",
-      "Chỉ trả lời những vấn đề liên quan đến sản phẩm và showroom.",
-      "Không trả lời những vấn đề không liên quan đến sản phẩm và showroom.",
-      suggestions.length
-        ? `Ưu tiên đề xuất 1-2 sản phẩm bên dưới (đã fetch sẵn) khi phù hợp: ${JSON.stringify(suggestions)}`
-        : "Nếu phù hợp, hãy đề xuất 1-2 sản phẩm cụ thể từ tool."
+      "Bạn là trợ lý tư vấn của showroom Gold Shop Midea Điện Phát.",
+      "Trả lời bằng tiếng Việt, thân thiện, rõ ràng và đúng trọng tâm.",
+      "Bạn có thể trả lời rộng hơn về các chủ đề liên quan điều hòa/máy lạnh: thuật ngữ (Inverter/BTU/HP/R32), chọn công suất theo diện tích, cách sử dụng tiết kiệm điện, lưu ý lắp đặt và bảo trì cơ bản.",
+      "Khi cần thông tin thực tế của cửa hàng (showroom) hoặc dữ liệu sản phẩm/danh mục/bài viết, hãy dùng tool đã cung cấp.",
+      "Không bịa thông tin cụ thể như giá, khuyến mãi, tồn kho, địa chỉ/giờ mở cửa nếu tool không trả về. Nếu không có dữ liệu, hãy nói rõ là chưa có và gợi ý khách xem trang chi tiết hoặc liên hệ showroom.",
+      "Nếu câu hỏi chưa đủ dữ kiện để tư vấn (ví dụ diện tích phòng, phòng có nắng, số người, nhu cầu Inverter), hãy hỏi lại tối đa 1–2 câu để làm rõ trước khi đề xuất.",
+      suggestionsForModel.length
+        ? `Hiện có danh sách sản phẩm gợi ý (name, slug, shortDescription, imageUrl): ${JSON.stringify(
+            suggestionsForModel
+          )}.`
+        : "Nếu phù hợp, hãy dùng tool để tìm và đề xuất 1-2 sản phẩm cụ thể.",
+      isCompare && suggestionsForModel.length >= 2
+        ? "Nếu người dùng yêu cầu so sánh, hãy so sánh các sản phẩm trong danh sách gợi ý ở trên (không yêu cầu nhập lại mã)."
+        : "Nếu người dùng yêu cầu so sánh mà chưa nêu rõ sản phẩm, hãy hỏi lại ngắn gọn để xác định 2 mẫu cần so sánh."
     ].join("\n");
 
     const svc = new GeminiService();
