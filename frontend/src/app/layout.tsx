@@ -29,6 +29,11 @@ export const metadata: Metadata = {
   },
   description:
     "Showroom Gold Shop Midea Điện Phát - giới thiệu sản phẩm điều hòa Midea, thông tin showroom và tư vấn lắp đặt tại Long Xuyên.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
 type Suggestion = { name: string; slug: string; shortDescription?: string; imageUrl?: string };
@@ -164,7 +166,24 @@ export function ChatWidget() {
                       : "mr-auto bg-white text-zinc-900 border border-zinc-200"
                   ].join(" ")}
                 >
-                  {m.content}
+                  {m.role === "assistant" ? (
+                    <div className="prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-primary">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          a: ({ children, ...props }) => (
+                            <a {...props} target="_blank" rel="noreferrer" className="underline underline-offset-4">
+                              {children}
+                            </a>
+                          )
+                        }}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    m.content
+                  )}
                 </div>
               ))}
 

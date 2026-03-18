@@ -43,7 +43,19 @@ export default async function NewsPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {data.items.map((p) => (
-          <Card key={p.id} className="shadow-sm">
+          <Card key={p.id} className="overflow-hidden shadow-sm">
+            {p.coverImageUrl ? (
+              <div className="aspect-[16/9] w-full overflow-hidden bg-zinc-100">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.coverImageUrl}
+                  alt={p.title}
+                  className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
+                />
+              </div>
+            ) : (
+              <div className="aspect-[16/9] w-full bg-zinc-100" />
+            )}
             <CardHeader>
               <CardTitle className="text-base">
                 <Link href={`/tin-tuc/${p.slug}`} className="hover:text-primary">

@@ -337,7 +337,19 @@ export default async function Home() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {latestPosts.map((post) => (
-              <Card key={post.id} className="shadow-sm">
+              <Card key={post.id} className="overflow-hidden shadow-sm">
+                {post.coverImageUrl ? (
+                  <div className="aspect-[16/9] w-full overflow-hidden bg-zinc-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={post.coverImageUrl}
+                      alt={post.title}
+                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-[16/9] w-full bg-zinc-100" />
+                )}
                 <CardHeader>
                   <CardTitle className="line-clamp-2 text-sm font-semibold text-zinc-900">
                     {post.title}

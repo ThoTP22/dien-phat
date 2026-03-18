@@ -70,3 +70,20 @@ export async function createPost(payload: CreatePostPayload): Promise<Post> {
   return res.data.data as Post;
 }
 
+export async function fetchAdminPostDetail(id: string): Promise<Post> {
+  const res = await adminHttp.get(apiEndpoints.posts.adminDetail(id));
+  if (!res.data?.success) throw new Error(res.data?.message || "Không thể tải chi tiết bài viết");
+  return res.data.data as Post;
+}
+
+export async function updatePost(id: string, payload: Partial<CreatePostPayload>): Promise<Post> {
+  const res = await adminHttp.patch(apiEndpoints.posts.adminUpdate(id), payload);
+  if (!res.data?.success) throw new Error(res.data?.message || "Cập nhật bài viết thất bại");
+  return res.data.data as Post;
+}
+
+export async function deletePost(id: string): Promise<void> {
+  const res = await adminHttp.delete(apiEndpoints.posts.adminDelete(id));
+  if (!res.data?.success) throw new Error(res.data?.message || "Xóa bài viết thất bại");
+}
+
