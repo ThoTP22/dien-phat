@@ -9,6 +9,13 @@ type GeminiPart =
 
 type GeminiContent = { role?: "user" | "model"; parts: GeminiPart[] };
 
+type ProductSuggestion = {
+  name: string;
+  slug: string;
+  shortDescription?: string;
+  imageUrl?: string;
+};
+
 function asRole(role: ChatMessage["role"]): "user" | "model" {
   return role === "assistant" ? "model" : "user";
 }
@@ -42,15 +49,29 @@ export class GeminiService {
       toolConfig: { functionCallingConfig: { mode: "AUTO" } },
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 800
+        maxOutputTokens: 1200
       }
     };
 
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        throw new Error("Gemini phản hồi quá chậm (timeout 15s). Vui lòng thử lại.");
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -64,8 +85,13 @@ export class GeminiService {
     messages: ChatMessage[];
     systemInstructionText: string;
     maxToolIterations?: number;
-  }): Promise<{ reply: string; toolTrace: Array<{ name: string; ok: boolean }> }> {
+  }): Promise<{
+    reply: string;
+    toolTrace: Array<{ name: string; ok: boolean }>;
+    productSuggestions: ProductSuggestion[];
+  }> {
     const toolTrace: Array<{ name: string; ok: boolean }> = [];
+    const productSuggestions: ProductSuggestion[] = [];
     const maxToolIterations = Math.max(0, Math.min(6, params.maxToolIterations ?? 4));
 
     const contents: GeminiContent[] = params.messages.map((m) => ({
@@ -79,7 +105,6 @@ export class GeminiService {
       const modelContent = cand?.content as GeminiContent | undefined;
       const parts: GeminiPart[] = (modelContent?.parts || []) as any;
 
-      // Always keep the model turn in history for correctness.
       if (modelContent?.parts?.length) {
         contents.push({ role: "model", parts });
       }
@@ -98,13 +123,30 @@ export class GeminiService {
           .filter(Boolean)
           .join("\n")
           .trim();
-        return { reply: text || "Mình chưa có đủ thông tin để trả lời.", toolTrace };
+        return {
+          reply: text || "Mình chưa có đủ thông tin để trả lời.",
+          toolTrace,
+          productSuggestions: productSuggestions.slice(0, 2)
+        };
       }
 
-      // Execute tools and append functionResponse parts.
       for (const call of functionCalls) {
         const result = await executeTool(call);
         toolTrace.push({ name: call.name, ok: result.ok });
+
+        if (result.ok && call.name === "searchProducts" && !productSuggestions.length) {
+          const items = (result.data as any)?.items;
+          if (Array.isArray(items)) {
+            for (const p of items.slice(0, 2)) {
+              productSuggestions.push({
+                name: p.name,
+                slug: p.slug,
+                shortDescription: p.shortDescription,
+                imageUrl: p.imageUrl
+              });
+            }
+          }
+        }
 
         const response = result.ok
           ? { output: result.data }
@@ -127,8 +169,8 @@ export class GeminiService {
 
     return {
       reply: "Mình không thể hoàn tất yêu cầu ngay lúc này. Bạn thử hỏi ngắn gọn hơn hoặc thử lại sau.",
-      toolTrace
+      toolTrace,
+      productSuggestions: productSuggestions.slice(0, 2)
     };
   }
 }
-

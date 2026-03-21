@@ -220,8 +220,12 @@ export function ChatWidget() {
               ) : null}
 
               {loading ? (
-                <div className="mr-auto max-w-[92%] rounded-3xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-600 shadow-sm">
-                  Đang trả lời...
+                <div className="mr-auto max-w-[92%] rounded-3xl border border-zinc-200 bg-white px-3 py-2 shadow-sm">
+                  <span className="inline-flex items-center gap-1 text-sm text-zinc-500">
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:0ms]" />
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:150ms]" />
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:300ms]" />
+                  </span>
                 </div>
               ) : null}
               {error ? (
@@ -244,7 +248,13 @@ export function ChatWidget() {
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Nhập câu hỏi..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (canSend) void send();
+                  }
+                }}
+                placeholder="Nhập câu hỏi... (Enter gửi, Shift+Enter xuống dòng)"
                 rows={2}
                 className="min-h-[44px] flex-1 resize-none rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary"
               />
