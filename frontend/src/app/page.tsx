@@ -115,12 +115,45 @@ export default async function Home() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/15" />
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 mx-auto flex max-w-7.5xl flex-col justify-end px-3 pb-6 pt-4 md:inset-0 md:flex md:items-end md:justify-end md:pb-14 md:pt-20 md:px-4">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between" />
+        <div className="absolute inset-0 mx-auto flex w-full max-w-7xl items-end px-3 pb-10 pt-6 md:px-4 md:pb-20">
+          <div className="max-w-3xl text-white">
+            <h1 className="text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl">
+              Tư vấn điều hòa Midea đúng công suất cho từng phòng
+            </h1>
+            <p className="mt-4 max-w-2xl text-base text-white/90 md:text-lg">
+              Đề xuất theo diện tích, mức nắng và nhu cầu sử dụng. Lắp đặt chuẩn kỹ thuật tại Long Xuyên.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/showroom"
+                className="inline-flex items-center rounded-full bg-[#FFB703] px-5 py-2.5 text-base font-semibold text-zinc-900 transition hover:bg-[#F4A300]"
+              >
+                Nhận tư vấn miễn phí
+              </Link>
+              <Link
+                href="/san-pham"
+                className="inline-flex items-center rounded-full border border-white/70 bg-white/10 px-5 py-2.5 text-base font-semibold text-white transition hover:bg-white/20"
+              >
+                Xem sản phẩm
+              </Link>
+            </div>
+            <p className="mt-5 text-sm font-medium text-white/85">
+              Midea Gold Shop • Tư vấn tận tâm • Hậu mãi minh bạch
+            </p>
+          </div>
         </div>
+        <Link
+          href="#danh-muc-san-pham"
+          className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[#FFB703] transition hover:text-[#F4A300]"
+        >
+          <span className="flex flex-col items-center text-xs font-medium">
+            <span className="animate-bounce">↓</span>
+            <span>Xem thêm</span>
+          </span>
+        </Link>
       </section>
 
-      <section className="mx-auto max-w-7xl px-3 py-8 sm:py-10 md:px-4 md:py-12">
+      <section id="danh-muc-san-pham" className="mx-auto max-w-7xl px-3 py-8 sm:py-10 md:px-4 md:py-12">
         <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">

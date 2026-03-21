@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { GeminiService } from "../services/gemini.service";
+import { executeTool } from "../chat/tools";
 
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -26,6 +27,35 @@ const chatSchema = z.object({
 
 function totalChars(messages: Array<{ content: string }>) {
   return messages.reduce((sum, m) => sum + (m.content?.length || 0), 0);
+}
+
+function isProductIntent(text: string): boolean {
+  const t = text.toLowerCase();
+  return /(mua|chon|chọn|goi y|gợi ý|tu van|tư vấn|so sanh|so sánh|model|ma may|mã máy|cong suat|công suất|phong|phòng|btu|hp|inverter|gia|giá|san pham|sản phẩm|may lanh|máy lạnh|dieu hoa|điều hòa)/i.test(
+    t
+  );
+}
+
+function isKnowledgeIntent(text: string): boolean {
+  const t = text.toLowerCase();
+  return /(lưu ý|luu y|kinh nghiệm|kinh nghiem|cách|cach|hướng dẫn|huong dan|nên|nen|là gì|la gi|mẹo|meo)/i.test(
+    t
+  );
+}
+
+function buildPostSearchQuery(text: string): string {
+  const t = text
+    .toLowerCase()
+    .replace(/[?!.:,;()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (/(lưu ý|luu y)/i.test(t) && /(mua|chon|chọn)/i.test(t) && /(máy lạnh|may lanh|điều hòa|dieu hoa)/i.test(t)) {
+    return "lưu ý mua điều hòa";
+  }
+  if (/(tiết kiệm điện|tiet kiem dien)/i.test(t)) return "tiết kiệm điện điều hòa";
+  if (/(công suất|cong suat|btu|hp)/i.test(t)) return "chọn công suất điều hòa";
+  return t;
 }
 
 export const chatHandler = async (req: Request, res: Response) => {
@@ -57,6 +87,8 @@ export const chatHandler = async (req: Request, res: Response) => {
     }
 
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+    const productIntent = isProductIntent(lastUser);
+    const knowledgeIntent = isKnowledgeIntent(lastUser);
 
     const isCompare =
       /so sánh|so sanh|compare/i.test(lastUser);
@@ -72,14 +104,13 @@ export const chatHandler = async (req: Request, res: Response) => {
       "",
       "KHA NANG:",
       "- Am hieu sau ve dieu hoa/may lanh: cong nghe (Inverter, non-inverter), cong suat (BTU/HP), gas lanh (R32/R410A), do on, tiet kiem dien, lap dat, bao tri.",
-      "- Co the tu van chon may theo dien tich, ngan sach, nhu cau su dung ma khong can tool neu la kien thuc chung.",
-      "- Khi can du lieu thuc te cua shop (san pham cu the, showroom, bai viet, danh muc), CHU DONG dung tool da cung cap. Khong doi khach yeu cau moi goi tool.",
-      "- Khi tu van, hay dung searchPosts de tim bai viet lien quan, roi dung getPostBySlug de doc noi dung chi tiet. Trich dan kien thuc tu bai viet de loi khuyen co co so va dan link bai viet cho khach tham khao (vd: 'Theo bai viet [Ten bai](/tin-tuc/slug)...').",
-      "- Khi khach hoi ve san pham, goi y, tu van: HAY DUNG searchProducts de tim san pham phu hop roi gioi thieu cho khach. Khong can doi khach noi ro ten san pham.",
+      "- Co the tu van tu do theo ngu canh hoi thoai. Tu chu quyet dinh khi nao can goi tool de xac minh thong tin.",
+      "- Uu tien tri thuc noi bo khi co san: dung searchPosts + getPostBySlug de tom tat y chinh va dan link bai viet phu hop.",
+      "- Chi de xuat san pham cu the khi co dau hieu y dinh mua/so sanh/tu van model; voi cau hoi kien thuc chung thi tap trung giai thich va huong dan.",
       "",
       "NGUYEN TAC:",
-      "- Khong bia thong tin cu the (gia, khuyen mai, ton kho, dia chi) neu tool khong tra ve.",
-      "- Neu khong co du lieu, noi ro va goi y khach xem trang chi tiet hoac lien he showroom.",
+      "- KHONG bịa thong tin. Moi du lieu cu the (gia, khuyen mai, ton kho, dia chi, thong so chi tiet) phai dua tren tool hoac noi dung bai viet noi bo.",
+      "- Neu thieu du lieu, noi ro muc do chac chan, dat toi da 1-2 cau hoi lam ro hoac goi y cach kiem tra tiep theo.",
       "- Khi khach noi 'so sanh' ma da co san pham trong ngu canh, so sanh ngay khong hoi lai.",
       "",
       previousSuggestions.length
@@ -96,14 +127,43 @@ export const chatHandler = async (req: Request, res: Response) => {
       systemInstructionText
     });
 
-    const suggestions = out.productSuggestions.length
+    let reply = out.reply;
+    const isGenericFallback =
+      /Mình chưa có đủ thông tin để trả lời/i.test(reply) ||
+      /Mình không thể hoàn tất yêu cầu/i.test(reply);
+
+    if (knowledgeIntent && isGenericFallback) {
+      reply = `Mình tổng hợp nhanh các lưu ý quan trọng khi mua máy lạnh:\n\n- **Chọn công suất đúng diện tích và mức nắng** để tránh tốn điện hoặc làm mát kém.\n- **Ưu tiên Inverter** nếu dùng nhiều giờ mỗi ngày để tiết kiệm điện lâu dài.\n- **Kiểm tra độ ồn, gas lạnh (R32), bảo hành máy nén và linh kiện**.\n- **Chọn đơn vị lắp đặt chuẩn kỹ thuật** (vị trí dàn nóng/lạnh, ống đồng, thoát nước).\n\nNếu bạn muốn, mình có thể tư vấn nhanh theo diện tích phòng và ngân sách để chốt công suất phù hợp.`;
+
+      const postRes = await executeTool({
+        name: "searchPosts",
+        args: { search: buildPostSearchQuery(lastUser), limit: 3 }
+      });
+      if (postRes.ok) {
+        const items = (postRes.data as any)?.items;
+        if (Array.isArray(items) && items.length) {
+          const lines = items
+            .slice(0, 3)
+            .map(
+              (p: any) =>
+                `- [${p.title}](/tin-tuc/${p.slug})${p.summary ? `: ${p.summary}` : ""}`
+            )
+            .join("\n");
+          reply += `\n\nBạn có thể tham khảo bài viết nội bộ:\n${lines}`;
+        }
+      }
+    }
+
+    const suggestions = productIntent && !knowledgeIntent && out.productSuggestions.length
       ? out.productSuggestions
-      : previousSuggestions.slice(0, 2);
+      : productIntent && !knowledgeIntent
+        ? previousSuggestions.slice(0, 2)
+        : [];
 
     return res.json({
       success: true,
       message: "OK",
-      data: { reply: out.reply, toolTrace: out.toolTrace, suggestions }
+      data: { reply, toolTrace: out.toolTrace, suggestions }
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
