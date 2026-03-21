@@ -66,7 +66,7 @@ export const toolDeclarations = [
   },
   {
     name: "searchPosts",
-    description: "Tìm bài viết tin tức (public) theo từ khóa.",
+    description: "Tìm bài viết tin tức (public) theo từ khóa. Trả về tiêu đề, slug, tóm tắt. Dùng getPostBySlug để đọc nội dung chi tiết.",
     parameters: {
       type: "object",
       properties: {
@@ -76,6 +76,15 @@ export const toolDeclarations = [
       },
       required: []
     }
+  },
+  {
+    name: "getPostBySlug",
+    description: "Đọc nội dung chi tiết một bài viết theo slug. Dùng khi cần trích dẫn kiến thức từ bài viết nội bộ để tư vấn khách hàng.",
+    parameters: {
+      type: "object",
+      properties: { slug: { type: "string", description: "Slug của bài viết" } },
+      required: ["slug"]
+    }
   }
 ] as const;
 
@@ -83,6 +92,20 @@ function truncateText(s: string, max = 240) {
   const t = (s || "").toString();
   if (t.length <= max) return t;
   return t.slice(0, max - 1) + "…";
+}
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 export async function executeTool(call: ToolCall): Promise<ToolResult> {
@@ -159,6 +182,22 @@ export async function executeTool(call: ToolCall): Promise<ToolResult> {
               summary: p.summary ? truncateText(p.summary) : undefined,
               publishedAt: p.publishedAt
             }))
+          }
+        };
+      }
+      case "getPostBySlug": {
+        const slug = String(call.args.slug || "").trim();
+        if (!slug) return { ok: false, error: "Thieu slug" };
+        const post = await postService.getPublicBySlug(slug);
+        const plainContent = stripHtml(post.content || "");
+        return {
+          ok: true,
+          data: {
+            title: post.title,
+            slug: post.slug,
+            summary: post.summary,
+            content: truncateText(plainContent, 3000),
+            publishedAt: post.publishedAt
           }
         };
       }
