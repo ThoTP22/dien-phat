@@ -82,9 +82,9 @@ export default async function CategoryProductsPage({
     });
 
     return (
-      <div className="bg-zinc-50">
+      <div>
         <BreadcrumbJsonLd items={breadcrumbItems} />
-        <section className="border-b border-zinc-200 bg-white">
+        <section className="border-b border-zinc-200 bg-white/70 backdrop-blur-sm">
           <div className="mx-auto max-w-6xl px-4 py-6 md:px-6">
             <nav className="mb-2 flex items-center gap-2 text-sm text-zinc-600">
               <Link href="/" className="hover:text-primary">Trang chủ</Link>

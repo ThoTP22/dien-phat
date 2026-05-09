@@ -102,70 +102,120 @@ export default async function Home() {
   })();
 
   return (
-    <div className="bg-zinc-50">
-      <section className="relative w-full overflow-hidden bg-black">
-        <div className="relative aspect-video w-full md:aspect-auto md:min-h-screen">
-          <div className="absolute inset-0">
-            {process.env.NEXT_PUBLIC_HERO_VIDEO_URL && (
-              <HeroVideo
-                className="h-full w-full object-cover"
-                src={process.env.NEXT_PUBLIC_HERO_VIDEO_URL}
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/15" />
-          </div>
+    <div>
+      {/* Hero section */}
+      <section className="relative flex w-full flex-col bg-gradient-to-br from-white via-blue-50 to-sky-100">
+        {/* Decorative background blobs */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -right-32 -top-32 h-[500px] w-[500px] rounded-full bg-primary/8 blur-3xl" />
+          <div className="absolute -bottom-20 left-0 h-[400px] w-[400px] rounded-full bg-sky-200/40 blur-3xl" />
         </div>
-        <div className="absolute inset-0 mx-auto flex w-full max-w-7xl items-end px-3 pb-10 pt-6 md:px-4 md:pb-20">
-          <div className="max-w-3xl text-white">
-            <h1 className="text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl">
-              Tư vấn điều hòa Midea đúng công suất cho từng phòng
+
+        {/* Main content */}
+        <div className="relative mx-auto flex w-full max-w-7xl flex-1 grid-cols-1 flex-col items-center gap-10 px-4 py-14 md:grid md:grid-cols-2 md:gap-14 md:px-8 md:py-20">
+          {/* LEFT: text content */}
+          <div className="order-2 space-y-6 md:order-1">
+            {/* Brand badge */}
+            <span className="inline-block rounded-full border border-primary/30 bg-primary/8 px-4 py-1 text-[11px] font-bold uppercase tracking-widest text-primary">
+              Midea Gold Shop · Điện Phát
+            </span>
+
+            {/* H1 */}
+            <h1 className="text-3xl font-extrabold leading-tight text-zinc-900 sm:text-4xl md:text-5xl">
+              Đại lý Midea chính hãng tại Long Xuyên
             </h1>
-            <p className="mt-4 max-w-2xl text-base text-white/90 md:text-lg">
-              Đề xuất theo diện tích, mức nắng và nhu cầu sử dụng. Lắp đặt chuẩn kỹ thuật tại Long Xuyên.
+
+            {/* Subheader */}
+            <p className="text-base leading-relaxed text-zinc-500 md:text-lg">
+              Tư vấn đúng công suất theo diện tích, lắp đặt chuẩn kỹ thuật. Đại lý Gold Shop Midea uy tín duy nhất tại An Giang.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+
+            {/* Key features */}
+            <ul className="space-y-3">
+              {[
+                "Tư vấn công suất phù hợp theo diện tích từng phòng",
+                "Lắp đặt chuẩn kỹ thuật bởi thợ được đào tạo bài bản",
+                "Bảo hành chính hãng Midea toàn quốc",
+                "Hỗ trợ sau mua, bảo trì và vệ sinh máy định kỳ",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-zinc-700">
+                  <svg className="mt-0.5 h-5 w-5 shrink-0 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <div className="flex flex-wrap gap-3 pt-1">
               <Link
                 href="/showroom"
-                className="inline-flex items-center rounded-full bg-[#FFB703] px-5 py-2.5 text-base font-semibold text-zinc-900 transition hover:bg-[#F4A300]"
+                className="inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition hover:brightness-110"
               >
                 Nhận tư vấn miễn phí
               </Link>
               <Link
                 href="/san-pham"
-                className="inline-flex items-center rounded-full border border-white/70 bg-white/10 px-5 py-2.5 text-base font-semibold text-white transition hover:bg-white/20"
+                className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-6 py-3 text-sm font-semibold text-zinc-700 transition hover:border-primary hover:text-primary"
               >
                 Xem sản phẩm
               </Link>
             </div>
-            <p className="mt-5 text-sm font-medium text-white/85">
-              Midea Gold Shop • Tư vấn tận tâm • Hậu mãi minh bạch
-            </p>
+
+            {/* Trust signals */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-200 pt-4">
+              {[
+                "Midea Gold Shop",
+                "Chính hãng 100%",
+                "Tư vấn miễn phí",
+                "Bảo hành chính hãng",
+                "Lắp đặt tại Long Xuyên",
+              ].map((label) => (
+                <span key={label} className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
+                  <svg className="h-3.5 w-3.5 shrink-0 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT: video */}
+          <div className="order-1 md:order-2">
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-zinc-100 shadow-2xl shadow-primary/10 ring-1 ring-primary/15">
+              {process.env.NEXT_PUBLIC_HERO_VIDEO_URL ? (
+                <HeroVideo
+                  className="h-full w-full object-cover"
+                  src={process.env.NEXT_PUBLIC_HERO_VIDEO_URL}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+                  Video showroom
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        <Link
-          href="#danh-muc-san-pham"
-          className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[#FFB703] transition hover:text-[#F4A300]"
-        >
-          <span className="flex flex-col items-center text-xs font-medium">
-            <span className="animate-bounce">↓</span>
-            <span>Xem thêm</span>
-          </span>
-        </Link>
       </section>
 
       <section id="danh-muc-san-pham" className="mx-auto max-w-7xl px-3 py-8 sm:py-10 md:px-4 md:py-12">
-        <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-primary">
               Danh mục sản phẩm
-            </p>
-            <h2 className="mt-1 text-lg font-semibold text-zinc-900 sm:text-xl">Các nhóm điều hòa Midea</h2>
-            <p className="mt-1 text-xs text-zinc-600">
+            </span>
+            <h2 className="mt-2 text-2xl font-bold text-zinc-900 sm:text-3xl">Các nhóm điều hòa Midea</h2>
+            <p className="mt-1 text-sm text-zinc-500">
               Các nhóm sản phẩm điều hòa Midea đang có tại showroom Điện Phát.
             </p>
           </div>
-          <Link href="/san-pham" className="shrink-0 text-xs font-semibold text-primary hover:underline">
-            Xem tất cả
+          <Link
+            href="/san-pham"
+            className="shrink-0 rounded-full border border-primary px-5 py-2 text-xs font-bold text-primary transition hover:bg-primary hover:text-white"
+          >
+            Xem tất cả →
           </Link>
         </header>
 
@@ -176,31 +226,34 @@ export default async function Home() {
         ) : (
           <div className="space-y-10">
             {categorySections.map(({ cat, parent, products }) => (
-              <section key={cat.id} className="space-y-3">
-                <header className="flex flex-col gap-2 border-b border-zinc-100 pb-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-                  <div className="min-w-0 pl-1">
-                    <h3 className="text-base font-semibold text-zinc-900 sm:text-lg">
-                      {parent ? (
-                        <>
-                          <Link href={`/san-pham/danh-muc/${parent.slug}`} className="text-zinc-500 hover:text-primary">
-                            {parent.name}
-                          </Link>
-                          <span className="mx-1.5 text-zinc-300">/</span>
-                          {cat.name}
-                        </>
-                      ) : (
-                        cat.name
-                      )}
-                    </h3>
-                    <p className="mt-1 text-xs text-zinc-600">
-                      {cat.summary || "Danh mục sản phẩm sẽ được cập nhật nội dung chi tiết."}
-                    </p>
+              <section key={cat.id} className="space-y-4">
+                <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="h-8 w-1.5 shrink-0 rounded-full bg-primary" />
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-bold text-zinc-900 sm:text-xl">
+                        {parent ? (
+                          <>
+                            <Link href={`/san-pham/danh-muc/${parent.slug}`} className="font-normal text-zinc-400 hover:text-primary">
+                              {parent.name}
+                            </Link>
+                            <span className="mx-1.5 text-zinc-300">/</span>
+                            {cat.name}
+                          </>
+                        ) : (
+                          cat.name
+                        )}
+                      </h3>
+                      {cat.summary ? (
+                        <p className="mt-0.5 text-xs text-zinc-500">{cat.summary}</p>
+                      ) : null}
+                    </div>
                   </div>
                   <Link
                     href={`/san-pham/danh-muc/${cat.slug}`}
-                    className="shrink-0 text-xs font-semibold text-primary hover:underline"
+                    className="shrink-0 rounded-full bg-zinc-100 px-4 py-1.5 text-xs font-bold text-zinc-600 transition hover:bg-primary hover:text-white"
                   >
-                    Xem thêm
+                    Xem thêm →
                   </Link>
                 </header>
 
@@ -209,48 +262,51 @@ export default async function Home() {
                     Chưa có sản phẩm trong danh mục này.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:gap-5">
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:gap-6">
                     {products.map((p: any) => (
                       <Card
                         key={p.id}
-                        className="group flex flex-col overflow-hidden shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:hover:-translate-y-1"
+                        className="group flex flex-col overflow-hidden rounded-2xl border-0 shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
                       >
                         <CardContent className="flex min-w-0 flex-1 flex-col p-0">
-                          <div className="relative w-full overflow-hidden bg-white">
+                          <div className="relative w-full overflow-hidden bg-zinc-50">
                             <HoverImageCarousel
                               images={p.images}
                               fallbackAlt={p.name}
-                              wrapperClassName="aspect-[4/3] w-full bg-white overflow-hidden"
-                              imgClassName="h-full w-full object-cover transition group-hover:scale-[1.03]"
+                              wrapperClassName="aspect-[4/3] w-full bg-zinc-50 overflow-hidden"
+                              imgClassName="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.07]"
                             />
+                            <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                           </div>
-                          <div className="flex flex-1 flex-col space-y-1.5 p-3 sm:space-y-2 sm:p-4">
-                            <div className="line-clamp-2 text-xs font-semibold text-zinc-900 sm:text-sm">
+                          <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
+                            <div className="line-clamp-2 text-sm font-bold leading-snug text-zinc-900 sm:text-base">
                               {p.name}
                             </div>
-                              {p.modelCode ? (
-                                <div className="text-xs text-zinc-600">Model: {p.modelCode}</div>
-                              ) : null}
-                              {Array.isArray(p.images) && p.images.length > 1 ? (
-                                <div className="flex gap-1 pt-1">
-                                  {p.images.slice(0, 3).map((img: any, idx: number) => (
-                                    <div
-                                      key={`${p.id}-${idx}`}
-                                      className="h-8 w-8 overflow-hidden rounded border border-zinc-200 bg-white opacity-0 transition group-hover:opacity-100"
-                                    >
-                                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                                      <img
-                                        src={img.url}
-                                        alt={img.alt || p.name}
-                                        className="h-full w-full object-cover"
-                                      />
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : null}
+                            {p.modelCode ? (
+                              <span className="inline-flex w-fit rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500">
+                                {p.modelCode}
+                              </span>
+                            ) : null}
+                            {Array.isArray(p.images) && p.images.length > 1 ? (
+                              <div className="flex gap-1.5">
+                                {p.images.slice(0, 4).map((img: any, idx: number) => (
+                                  <div
+                                    key={`${p.id}-${idx}`}
+                                    className="h-8 w-8 overflow-hidden rounded-lg border-2 border-white shadow transition-all duration-200 group-hover:border-primary/40"
+                                  >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={img.url}
+                                      alt={img.alt || p.name}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : null}
                             <Link
                               href={`/san-pham/${p.slug}`}
-                              className="mt-auto inline-flex text-xs font-semibold text-primary hover:underline"
+                              className="mt-auto inline-flex items-center justify-center rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:brightness-95 hover:shadow-md"
                             >
                               Xem chi tiết
                             </Link>

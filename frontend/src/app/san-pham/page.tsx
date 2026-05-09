@@ -53,7 +53,7 @@ export default async function SanPhamPage({
           { name: "Sản phẩm", url: absoluteUrl("/san-pham") },
         ]}
       />
-      <section className="border-b border-zinc-200 bg-white">
+      <section className="border-b border-zinc-200 bg-white/70 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-4 py-6 md:px-6">
           <nav className="mb-3 flex items-center gap-2 text-sm text-zinc-600">
             <Link href="/" className="hover:text-primary">Trang chủ</Link>
