@@ -2,7 +2,7 @@ import { Response } from "express";
 import bcrypt from "bcryptjs";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import { listUsers, findUserById, createUser, updateUser } from "../repositories/user.repository";
-import { UserModel } from "../models/User";
+import { UserModel, UserRole } from "../models/User";
 
 export const listUsersAdminHandler = async (req: AuthRequest, res: Response) => {
   try {
@@ -102,7 +102,7 @@ export const updateUserAdminHandler = async (req: AuthRequest, res: Response) =>
       isActive?: boolean;
     };
 
-    const updates: { fullName?: string; passwordHash?: string; role?: string; isActive?: boolean } = {};
+    const updates: { fullName?: string; passwordHash?: string; role?: UserRole; isActive?: boolean } = {};
     if (fullName !== undefined) updates.fullName = fullName;
     if (role !== undefined) updates.role = role;
     if (isActive !== undefined) updates.isActive = isActive;
