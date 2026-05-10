@@ -1,0 +1,3 @@
+đây là toàn bộ trang web của tôi bề nổi là 1 trang showroom của 1 gold shop midea điện phát , bao gồm các chức năng mà khách có thể tham quan để xe các tin tức, liên quan về các sản phẩm đồ gia dụng của media, trang web này hoàn toàn không hard code các danh mục sản phẩm mà admin có thể tự tạo các danh mục và các sản phẩm của danh mục đó, 
+
+còn về phần quản lý, admin có thể quản lý được danh mục, sản phẩm, bài viết, KTV và các phiếu bảo hành 

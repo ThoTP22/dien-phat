@@ -97,11 +97,16 @@ const app = express();
 
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",").map((s) => s.trim())
-  : ["http://localhost:3000", "http://127.0.0.1:3000"];
+  : ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:4200",
+     "http://localhost:5000", "http://localhost:8080"];
+
+const isLocalhost = (origin: string) =>
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 
 const corsOptions = {
   origin: (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => {
     if (!origin) return cb(null, true);
+    if (isLocalhost(origin)) return cb(null, true);
     const allowed = allowedOrigins.some((o) => {
       if (o.startsWith("*.")) {
         const pattern = "^https?://" + o.replace(/\./g, "\\.").replace("*", "[a-zA-Z0-9-]+") + "$";
