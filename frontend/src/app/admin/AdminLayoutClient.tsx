@@ -23,6 +23,19 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     }
   }, [isLoginPage, token, router]);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
   if (isLoginPage) {
     return <>{children}</>;
   }
@@ -41,25 +54,15 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     { href: "/admin/products", label: "Sản phẩm", key: "products" },
     { href: "/admin/showroom", label: "Showroom", key: "showroom" },
     { href: "/admin/leads", label: "Leads", key: "leads" },
+    { href: "/admin/bao-hanh", label: "Bảo hành", key: "bao-hanh" },
+    { href: "/admin/chat", label: "Chat AI", key: "chat" },
+    { href: "/admin/users", label: "Nhân viên", key: "users" },
     { href: "/admin/posts", label: "Bài viết", key: "posts" },
   ] as const;
 
   const activeKey =
     navItems.find((i) => (i.href === "/admin" ? pathname === "/admin" : pathname?.startsWith(i.href)))?.key ??
     "dashboard";
-
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!mobileOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [mobileOpen]);
 
   return (
     <div className="w-full flex-1 bg-zinc-50">

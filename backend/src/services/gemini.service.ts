@@ -1,4 +1,4 @@
-import { executeTool, toolDeclarations, type ToolCall } from "../chat/tools";
+import { executeTool, executeAdminTool, toolDeclarations, adminToolDeclarations, type ToolCall } from "../chat/tools";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -37,7 +37,11 @@ export class GeminiService {
     this.model = (process.env.GEMINI_MODEL || "gemini-1.5-flash").trim();
   }
 
-  private async generate(contents: GeminiContent[], systemInstructionText: string) {
+  private async generate(
+    contents: GeminiContent[],
+    systemInstructionText: string,
+    isAdmin = false
+  ) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
       this.model
     )}:generateContent?key=${encodeURIComponent(this.apiKey)}`;
@@ -45,7 +49,7 @@ export class GeminiService {
     const body = {
       systemInstruction: { parts: [{ text: systemInstructionText }] },
       contents,
-      tools: [{ functionDeclarations: toolDeclarations }],
+      tools: [{ functionDeclarations: isAdmin ? adminToolDeclarations : toolDeclarations }],
       toolConfig: { functionCallingConfig: { mode: "AUTO" } },
       generationConfig: {
         temperature: 0.3,
@@ -54,7 +58,7 @@ export class GeminiService {
     };
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 25000);
 
     let res: Response;
     try {
@@ -66,7 +70,7 @@ export class GeminiService {
       });
     } catch (err: any) {
       if (err?.name === "AbortError") {
-        throw new Error("Gemini phản hồi quá chậm (timeout 15s). Vui lòng thử lại.");
+        throw new Error("Gemini phản hồi quá chậm (timeout 25s). Vui lòng thử lại.");
       }
       throw err;
     } finally {
@@ -85,6 +89,8 @@ export class GeminiService {
     messages: ChatMessage[];
     systemInstructionText: string;
     maxToolIterations?: number;
+    isAdmin?: boolean;
+    adminUser?: { id: string; role: string };
   }): Promise<{
     reply: string;
     toolTrace: Array<{ name: string; ok: boolean }>;
@@ -93,6 +99,8 @@ export class GeminiService {
     const toolTrace: Array<{ name: string; ok: boolean }> = [];
     const productSuggestions: ProductSuggestion[] = [];
     const maxToolIterations = Math.max(0, Math.min(6, params.maxToolIterations ?? 4));
+    const isAdmin = params.isAdmin ?? false;
+    const adminUser = params.adminUser;
 
     const contents: GeminiContent[] = params.messages.map((m) => ({
       role: asRole(m.role),
@@ -100,7 +108,7 @@ export class GeminiService {
     }));
 
     for (let iter = 0; iter <= maxToolIterations; iter++) {
-      const resp = await this.generate(contents, params.systemInstructionText);
+      const resp = await this.generate(contents, params.systemInstructionText, isAdmin);
       const cand = resp?.candidates?.[0];
       const modelContent = cand?.content as GeminiContent | undefined;
       const parts: GeminiPart[] = (modelContent?.parts || []) as any;
@@ -131,7 +139,9 @@ export class GeminiService {
       }
 
       for (const call of functionCalls) {
-        const result = await executeTool(call);
+        const result = isAdmin
+          ? await executeAdminTool(call, adminUser)
+          : await executeTool(call);
         toolTrace.push({ name: call.name, ok: result.ok });
 
         if (result.ok && call.name === "searchProducts" && !productSuggestions.length) {
@@ -172,5 +182,58 @@ export class GeminiService {
       toolTrace,
       productSuggestions: productSuggestions.slice(0, 2)
     };
+  }
+
+  async summarizeConversation(messages: ChatMessage[]): Promise<string> {
+    if (!messages.length) return "";
+
+    const contents: GeminiContent[] = messages.map((m) => ({
+      role: asRole(m.role),
+      parts: [{ text: m.content }]
+    }));
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+      this.model
+    )}:generateContent?key=${encodeURIComponent(this.apiKey)}`;
+
+    const body = {
+      systemInstruction: {
+        parts: [
+          {
+            text:
+              "Bạn là trợ lý tóm tắt hội thoại. Hãy tóm tắt ngắn gọn, giữ các thông tin còn giá trị cho tư vấn tiếp theo: nhu cầu, diện tích, ngân sách, sở thích công nghệ, sản phẩm đã nhắc tới, câu hỏi còn mở. Trả về tiếng Việt, tối đa 8 gạch đầu dòng."
+          }
+        ]
+      },
+      contents,
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 400
+      }
+    };
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) return "";
+      const text = (json as any)?.candidates?.[0]?.content?.parts
+        ?.map((p: any) => p?.text)
+        ?.filter(Boolean)
+        ?.join("\n")
+        ?.trim();
+      return text || "";
+    } catch {
+      return "";
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 }

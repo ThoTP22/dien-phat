@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import { GeminiService } from "../services/gemini.service";
 import { executeTool } from "../chat/tools";
+import type { AuthRequest } from "../middlewares/auth.middleware";
 
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -16,7 +17,7 @@ const suggestionSchema = z.object({
 });
 
 const chatSchema = z.object({
-  messages: z.array(messageSchema).min(1).max(20),
+  messages: z.array(messageSchema).min(1).max(80),
   context: z
     .object({
       suggestions: z.array(suggestionSchema).max(6).optional()
@@ -79,14 +80,35 @@ export const chatHandler = async (req: Request, res: Response) => {
     const { messages, context } = parsed.data;
     const previousSuggestions =
       (Array.isArray(context?.suggestions) ? context?.suggestions : undefined) ?? [];
-    if (totalChars(messages) > 12000) {
+    if (totalChars(messages) > 50000) {
       return res.status(413).json({
         success: false,
         message: "Nội dung quá dài"
       });
     }
 
-    const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+    const svc = new GeminiService();
+
+    let effectiveMessages = messages;
+    const userQuestionCount = messages.filter((m) => m.role === "user").length;
+
+    // Sau 10 câu hỏi user, nén bối cảnh cũ bằng tóm tắt để giữ ngữ cảnh nhưng tránh phình lịch sử.
+    if (userQuestionCount > 10) {
+      const keepRecent = 8;
+      const older = messages.slice(0, Math.max(0, messages.length - keepRecent));
+      const recent = messages.slice(-keepRecent);
+      const summary = await svc.summarizeConversation(older);
+
+      effectiveMessages = summary
+        ? [{ role: "assistant", content: `Tóm tắt hội thoại trước đó:\n${summary}` }, ...recent]
+        : recent;
+    }
+
+    if (totalChars(effectiveMessages) > 12000) {
+      effectiveMessages = effectiveMessages.slice(-10);
+    }
+
+    const lastUser = [...effectiveMessages].reverse().find((m) => m.role === "user")?.content || "";
     const productIntent = isProductIntent(lastUser);
     const knowledgeIntent = isKnowledgeIntent(lastUser);
 
@@ -121,9 +143,8 @@ export const chatHandler = async (req: Request, res: Response) => {
         : ""
     ].filter(Boolean).join("\n");
 
-    const svc = new GeminiService();
     const out = await svc.chat({
-      messages,
+      messages: effectiveMessages,
       systemInstructionText
     });
 
@@ -188,5 +209,64 @@ export const chatHandler = async (req: Request, res: Response) => {
       success: false,
       message: msg || "Lỗi chatbot"
     });
+  }
+};
+
+export const adminChatHandler = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(503).json({
+        success: false,
+        message: "Chatbot chưa được cấu hình (thiếu GEMINI_API_KEY)"
+      });
+    }
+
+    const parsed = chatSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Payload không hợp lệ",
+        errors: parsed.error.flatten()
+      });
+    }
+
+    const { messages } = parsed.data;
+    if (totalChars(messages) > 50000) {
+      return res.status(413).json({ success: false, message: "Nội dung quá dài" });
+    }
+
+    const adminUser = req.user;
+    const svc = new GeminiService();
+
+    const systemInstructionText = [
+      "Bạn là trợ lý nội bộ của showroom Gold Shop Midea Điện Phát, chỉ dành cho admin.",
+      "",
+      "KHẢ NĂNG:",
+      "- Tạo phiếu sửa chữa mới từ đoạn text mô tả thông tin khách hàng và hư hỏng.",
+      "- Tìm kiếm sản phẩm, danh mục, bài viết như chatbot khách hàng.",
+      "",
+      "NGUYÊN TẮc TẠO PHIẼU:",
+      "- Khi admin nhắn nội dung có thông tin khách hàng + hư hỏng, hãy gọi tool createRepairTicket ngay.",
+      "- Trích xuất đúng: tên khách, số điện thoại, hư hỏng, sản phẩm (nếu có), địa chỉ (nếu có).",
+      "- serviceType mặc định là service (dịch vụ sửa chữa), serviceLocation mặc định là at_station (tại cửa hàng).",
+      "- Sau khi tạo phiếu thành công, báo số phiếu (ticketNumber) và thông tin tóm tắt.",
+      "- Nếu thiếu thông tin bắt buộc (tên hoặc số đt hoặc mô tả hư hỏng), hỏi lại trước khi tạo."
+    ].join("\n");
+
+    const out = await svc.chat({
+      messages,
+      systemInstructionText,
+      isAdmin: true,
+      adminUser
+    });
+
+    return res.json({
+      success: true,
+      message: "OK",
+      data: { reply: out.reply, toolTrace: out.toolTrace }
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return res.status(500).json({ success: false, message: msg || "Lỗi chatbot admin" });
   }
 };

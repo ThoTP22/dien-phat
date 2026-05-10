@@ -59,6 +59,32 @@ export const apiEndpoints = {
     get adminCreate() { return base() + "/v1/admin/posts"; },
     adminUpdate: (id: string) => base() + `/v1/admin/posts/${id}`,
     adminDelete: (id: string) => base() + `/v1/admin/posts/${id}`
+  },
+  repairTickets: {
+    get adminList() { return base() + "/v1/admin/repair-tickets"; },
+    get adminCreate() { return base() + "/v1/admin/repair-tickets"; },
+    get adminExport() { return base() + "/v1/admin/repair-tickets/export"; },
+    adminDetail: (id: string) => base() + `/v1/admin/repair-tickets/${id}`,
+    adminUpdate: (id: string) => base() + `/v1/admin/repair-tickets/${id}`,
+    adminDelete: (id: string) => base() + `/v1/admin/repair-tickets/${id}`,
+    adminLogs: (id: string) => base() + `/v1/admin/repair-tickets/${id}/logs`
+  },
+  users: {
+    get adminList() { return base() + "/v1/admin/users"; },
+    get adminCreate() { return base() + "/v1/admin/users"; },
+    adminDetail: (id: string) => base() + `/v1/admin/users/${id}`,
+    adminUpdate: (id: string) => base() + `/v1/admin/users/${id}`
+  },
+  chat: {
+    get public() { return base() + "/v1/chat"; },
+    get admin() { return base() + "/v1/admin/chat"; }
+  },
+  technician: {
+    get myTickets() { return base() + "/v1/technician/my-tickets"; },
+    myTicketDetail: (id: string) => base() + `/v1/technician/my-tickets/${id}`,
+    updateMyTicketStatus: (id: string) => base() + `/v1/technician/my-tickets/${id}/status`,
+    updateMyTicketImages: (id: string) => base() + `/v1/technician/my-tickets/${id}/images`,
+    myTicketLogs: (id: string) => base() + `/v1/technician/my-tickets/${id}/logs`
   }
 } as const;
 

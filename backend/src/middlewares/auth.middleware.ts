@@ -9,6 +9,17 @@ export interface AuthRequest extends Request {
   };
 }
 
+export const requireRole = (...roles: string[]) =>
+  (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Chưa xác thực" });
+    }
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: "Không có quyền truy cập" });
+    }
+    return next();
+  };
+
 export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 

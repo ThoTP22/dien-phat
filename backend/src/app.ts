@@ -2,7 +2,14 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import { login, getMe, logout } from "./controllers/auth.controller";
-import { requireAuth } from "./middlewares/auth.middleware";
+import {
+  listUsersAdminHandler,
+  getUserByIdAdminHandler,
+  createUserAdminHandler,
+  updateUserAdminHandler
+} from "./controllers/user.controller";
+import { createUserSchema, updateUserSchema, listUsersQuerySchema } from "./validators/user.validator";
+import { requireAuth, requireRole } from "./middlewares/auth.middleware";
 import {
   listCategoriesHandler,
   getCategoryBySlugHandler,
@@ -60,7 +67,30 @@ import {
   updatePostHandler
 } from "./controllers/post.controller";
 import { createPostSchema, listPostsQuerySchema, updatePostSchema } from "./validators/post.validator";
-import { chatHandler } from "./controllers/chat.controller";
+import { chatHandler, adminChatHandler } from "./controllers/chat.controller";
+import {
+  listRepairTicketsHandler,
+  getRepairTicketByIdHandler,
+  createRepairTicketHandler,
+  updateRepairTicketHandler,
+  deleteRepairTicketHandler,
+  getTicketLogsHandler,
+  exportRepairTicketsCsvHandler
+} from "./controllers/repairTicket.controller";
+import {
+  listRepairTicketsQuerySchema,
+  createRepairTicketSchema,
+  updateRepairTicketSchema,
+  updateTicketStatusByTechSchema
+} from "./validators/repairTicket.validator";
+import {
+  listMyTicketsHandler,
+  getMyTicketByIdHandler,
+  updateMyTicketStatusHandler,
+  updateMyTicketImagesHandler,
+  getMyTicketLogsHandler
+} from "./controllers/technician.controller";
+
 import { rateLimit } from "./middlewares/rateLimit.middleware";
 
 const app = express();
@@ -108,6 +138,9 @@ app.get("/api/health", (_req, res) => {
 
 // Chatbot (public)
 app.post("/api/v1/chat", rateLimit({ windowMs: 15 * 60 * 1000, max: 30, keyPrefix: "chat" }), chatHandler);
+
+// Chatbot admin - tạo phiếu từ text
+app.post("/api/v1/admin/chat", requireAuth, requireRole("admin"), adminChatHandler);
 
 // Auth routes theo api-spec.md
 app.post("/api/v1/auth/login", validateRequest(loginSchema, "body"), login);
@@ -209,6 +242,85 @@ app.get("/api/v1/admin/posts/:id", requireAuth, getAdminPostByIdHandler);
 app.post("/api/v1/admin/posts", requireAuth, validateRequest(createPostSchema, "body"), createPostHandler);
 app.patch("/api/v1/admin/posts/:id", requireAuth, validateRequest(updatePostSchema, "body"), updatePostHandler);
 app.delete("/api/v1/admin/posts/:id", requireAuth, deletePostHandler);
+
+// Repair ticket routes
+app.get(
+  "/api/v1/admin/repair-tickets",
+  requireAuth,
+  validateRequest(listRepairTicketsQuerySchema, "query"),
+  listRepairTicketsHandler
+);
+app.post(
+  "/api/v1/admin/repair-tickets",
+  requireAuth,
+  validateRequest(createRepairTicketSchema, "body"),
+  createRepairTicketHandler
+);
+// export + logs phải đặt TRƯỚC /:id để tránh Express bắt nhầm
+app.get("/api/v1/admin/repair-tickets/export", requireAuth, exportRepairTicketsCsvHandler);
+app.get("/api/v1/admin/repair-tickets/:id", requireAuth, getRepairTicketByIdHandler);
+app.get("/api/v1/admin/repair-tickets/:id/logs", requireAuth, getTicketLogsHandler);
+app.patch(
+  "/api/v1/admin/repair-tickets/:id",
+  requireAuth,
+  validateRequest(updateRepairTicketSchema, "body"),
+  updateRepairTicketHandler
+);
+app.delete("/api/v1/admin/repair-tickets/:id", requireAuth, deleteRepairTicketHandler);
+
+// User management routes
+app.get(
+  "/api/v1/admin/users",
+  requireAuth,
+  validateRequest(listUsersQuerySchema, "query"),
+  listUsersAdminHandler
+);
+app.post(
+  "/api/v1/admin/users",
+  requireAuth,
+  validateRequest(createUserSchema, "body"),
+  createUserAdminHandler
+);
+app.get("/api/v1/admin/users/:id", requireAuth, getUserByIdAdminHandler);
+app.patch(
+  "/api/v1/admin/users/:id",
+  requireAuth,
+  validateRequest(updateUserSchema, "body"),
+  updateUserAdminHandler
+);
+
+// Technician portal routes
+app.get(
+  "/api/v1/technician/my-tickets",
+  requireAuth,
+  requireRole("technician"),
+  listMyTicketsHandler
+);
+app.get(
+  "/api/v1/technician/my-tickets/:id",
+  requireAuth,
+  requireRole("technician"),
+  getMyTicketByIdHandler
+);
+app.patch(
+  "/api/v1/technician/my-tickets/:id/status",
+  requireAuth,
+  requireRole("technician"),
+  validateRequest(updateTicketStatusByTechSchema, "body"),
+  updateMyTicketStatusHandler
+);
+app.patch(
+  "/api/v1/technician/my-tickets/:id/images",
+  requireAuth,
+  requireRole("technician"),
+  updateMyTicketImagesHandler
+);
+app.get(
+  "/api/v1/technician/my-tickets/:id/logs",
+  requireAuth,
+  requireRole("technician"),
+  getMyTicketLogsHandler
+);
 
 export default app;
 

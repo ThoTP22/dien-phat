@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, ObjectCannedACL } from "@aws-sdk/client-s3";
 import { s3Client } from "../configs/s3";
 import { env } from "../configs/env";
 import { randomUUID } from "crypto";
@@ -32,7 +32,8 @@ export class UploadService {
         Bucket: env.s3BucketName,
         Key: key,
         Body: file.buffer,
-        ContentType: file.mimetype
+        ContentType: file.mimetype,
+        ACL: ObjectCannedACL.public_read
       });
 
       await s3Client.send(command);

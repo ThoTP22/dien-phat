@@ -121,7 +121,7 @@ export default async function Home() {
             </span>
 
             {/* H1 */}
-            <h1 className="text-3xl font-extrabold leading-tight text-zinc-900 sm:text-4xl md:text-5xl">
+            <h1 className="text-3xl font-extrabold leading-tight text-green-900 sm:text-4xl md:text-5xl">
               Đại lý Midea chính hãng tại Long Xuyên
             </h1>
 

@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { LoginRequestDTO } from "../dto/requests/auth.dto";
 import { AuthRequest } from "../middlewares/auth.middleware";
+import { UserModel } from "../models/User";
 
 const authService = new AuthService();
 
@@ -47,5 +48,21 @@ export const logout = async (_req: AuthRequest, res: Response) => {
     message: "Đăng xuất thành công",
     data: {}
   });
+};
+
+export const listUsersHandler = async (_req: AuthRequest, res: Response) => {
+  try {
+    const users = await UserModel.find({ isActive: true }, { _id: 1, fullName: 1, email: 1 }).lean().exec();
+    return res.json({
+      success: true,
+      message: "Danh sách người dùng",
+      data: users.map((u) => ({ id: String(u._id), fullName: u.fullName, email: u.email }))
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Không thể tải danh sách người dùng"
+    });
+  }
 };
 
