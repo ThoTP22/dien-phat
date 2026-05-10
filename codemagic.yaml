@@ -13,7 +13,7 @@ workflows:
     scripts:
       - name: Create .env file
         script: |
-          echo "API_BASE_URL=$API_BASE_URL" > flutter/.env
+          echo "API_BASE_URL=$API_BASE_URL" > .env
       - name: Get Flutter packages
         script: flutter pub get
       - name: Flutter analyze
