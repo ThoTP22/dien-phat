@@ -1,0 +1,29 @@
+workflows:
+  ios-workflow:
+    name: iOS Build
+    max_build_duration: 60
+    environment:
+      flutter: 3.41.9
+      groups:
+        - ktv-app
+      vars:
+        XCODE_WORKSPACE: "Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+    working_directory: flutter
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+      - name: Flutter analyze
+        script: flutter analyze --no-fatal-infos
+      - name: Build iOS (no code signing)
+        script: |
+          flutter build ios --release --no-codesign
+    artifacts:
+      - flutter/build/ios/iphoneos/Runner.app
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: true
+          failure: true
