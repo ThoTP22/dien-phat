@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { SafeImage } from "@/components/ui/safe-image";
 
 type ImageItem = {
   url: string;
@@ -66,8 +67,7 @@ export function HoverImageCarousel({
         setActiveIndex(0);
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <SafeImage
         src={current.url}
         alt={current.alt || fallbackAlt}
         className={imgClassName}

@@ -4,9 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function PublicHeader() {
   const [phone, setPhone] = useState<string>("");
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     fetch("/api/v1/showroom")
@@ -16,9 +18,20 @@ export function PublicHeader() {
         if (p) setPhone(p);
       })
       .catch(() => {});
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const headerClassName = "sticky top-0 z-40 w-full border-b border-primary/30 bg-primary shadow-md";
+  const headerClassName = cn(
+    "sticky top-0 z-40 w-full transition-all duration-300",
+    scrolled
+      ? "bg-primary/90 backdrop-blur-md border-b border-white/10 shadow-lg"
+      : "bg-primary shadow-md"
+  );
 
   const fallbackHotline = (process.env.NEXT_PUBLIC_HOTLINE || "").trim();
   const tel = phone || fallbackHotline || "0900000000";
@@ -26,7 +39,10 @@ export function PublicHeader() {
 
   return (
     <header className={headerClassName}>
-      <div className="mx-auto flex max-w-8xl items-center justify-between px-3 py-3 md:px-4">
+      <div className={cn(
+        "mx-auto flex max-w-8xl items-center justify-between px-3 md:px-4 transition-all duration-300",
+        scrolled ? "py-2" : "py-3"
+      )}>
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/logo.png"
@@ -34,7 +50,7 @@ export function PublicHeader() {
             width={120}
             height={48}
             priority
-            className="h-10 w-auto"
+            className={cn("w-auto transition-all duration-300", scrolled ? "h-8" : "h-10")}
           />
           <div className="hidden flex-col sm:flex">
             <span className="text-sm font-semibold text-primary-foreground">

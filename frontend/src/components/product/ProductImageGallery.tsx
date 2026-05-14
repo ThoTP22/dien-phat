@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SafeImage } from "@/components/ui/safe-image";
 
 type ImageItem = {
   url: string;
@@ -35,8 +36,7 @@ export function ProductImageGallery({
 
   return (
     <div className="space-y-2">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <SafeImage
         src={active.url}
         alt={active.alt || productName}
         className="aspect-[4/3] w-full rounded-md border border-zinc-200 bg-white object-cover"
@@ -57,8 +57,7 @@ export function ProductImageGallery({
                 ].join(" ")}
                 aria-label={`Xem hình ${idx + 1}`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <SafeImage
                   src={img.url}
                   alt={img.alt || productName}
                   className="aspect-video w-full rounded-md object-cover"

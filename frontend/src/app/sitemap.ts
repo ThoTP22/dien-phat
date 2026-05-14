@@ -15,6 +15,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl("/san-pham"), lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
     { url: absoluteUrl("/showroom"), lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: absoluteUrl("/tin-tuc"), lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    // Local SEO Landing Pages
+    { url: absoluteUrl("/khu-vuc/gold-shop-midea-an-giang"), lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: absoluteUrl("/khu-vuc/may-lanh-midea-long-xuyen"), lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: absoluteUrl("/khu-vuc/lap-dat-may-lanh-midea-an-giang"), lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
   ];
 
   let categoryPages: MetadataRoute.Sitemap = [];

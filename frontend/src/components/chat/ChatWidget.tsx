@@ -35,6 +35,7 @@ export function ChatWidget() {
   ]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [input, setInput] = useState("");
+  const [hp, setHp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -99,6 +100,7 @@ export function ChatWidget() {
   }, [open, messages.length, loading]);
 
   async function send() {
+    if (hp) return; // Honeypot tripped
     const text = input.trim();
     if (!text || loading) return;
 
@@ -137,10 +139,10 @@ export function ChatWidget() {
   return (
     <div className="fixed bottom-20 right-4 z-50 md:bottom-4">
       {open ? (
-        <div className="flex h-[78vh] w-[94vw] max-w-[420px] flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-2xl sm:h-[64vh]">
-          <div className="flex items-center justify-between bg-primary px-4 py-3 text-white">
+        <div className="flex h-[78vh] w-[94vw] max-w-[420px] flex-col overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] sm:h-[64vh] animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="flex items-center justify-between bg-gradient-to-r from-primary/90 to-primary/70 backdrop-blur-md px-4 py-3 text-white border-b border-white/20">
             <div className="min-w-0">
-              <div className="text-sm font-semibold leading-tight">Trợ lý AI</div>
+              <div className="text-sm font-bold leading-tight drop-shadow-sm">Trợ lý AI</div>
               <div className="text-[11px] text-white/80">{launcherText}</div>
             </div>
             <Button
@@ -154,16 +156,16 @@ export function ChatWidget() {
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-zinc-50 px-3 py-3">
+          <div className="flex-1 overflow-y-auto px-3 py-4">
             <div className="space-y-2">
               {messages.map((m, idx) => (
                 <div
                   key={idx}
                   className={[
-                    "max-w-[92%] rounded-3xl px-3 py-2 text-sm leading-relaxed shadow-sm",
+                    "max-w-[90%] rounded-3xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
                     m.role === "user"
-                      ? "ml-auto bg-primary text-primary-foreground"
-                      : "mr-auto bg-white text-zinc-900 border border-zinc-200"
+                      ? "ml-auto bg-gradient-to-br from-primary to-primary/90 text-white rounded-br-sm shadow-md"
+                      : "mr-auto bg-white/90 backdrop-blur-md text-zinc-800 border border-white/50 rounded-bl-sm shadow-sm"
                   ].join(" ")}
                 >
                   {m.role === "assistant" ? (
@@ -194,7 +196,7 @@ export function ChatWidget() {
                     <Link
                       key={s.slug}
                       href={`/san-pham/${s.slug}`}
-                      className="block rounded-2xl border border-zinc-200 bg-white p-2 hover:bg-zinc-50 shadow-sm"
+                      className="block rounded-2xl border border-white/50 bg-white/60 backdrop-blur-sm p-2 hover:bg-white shadow-sm transition-all hover:-translate-y-0.5"
                     >
                       <div className="flex gap-2">
                         {s.imageUrl ? (
@@ -237,7 +239,7 @@ export function ChatWidget() {
             </div>
           </div>
 
-          <div className="border-t border-zinc-200 bg-white p-3">
+          <div className="border-t border-white/40 bg-white/50 backdrop-blur-md p-3">
             <form
               className="flex items-end gap-2"
               onSubmit={(e) => {
@@ -245,6 +247,7 @@ export function ChatWidget() {
                 void send();
               }}
             >
+              <input type="text" name="hp_field" className="hidden" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" />
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -256,9 +259,9 @@ export function ChatWidget() {
                 }}
                 placeholder="Nhập câu hỏi... (Enter gửi, Shift+Enter xuống dòng)"
                 rows={2}
-                className="min-h-[44px] flex-1 resize-none rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary"
+                className="min-h-[44px] flex-1 resize-none rounded-2xl border border-white/50 bg-white/80 px-3 py-2 text-sm outline-none focus:border-primary focus:bg-white transition-all shadow-inner"
               />
-              <Button type="submit" disabled={!canSend}>
+              <Button type="submit" disabled={!canSend} className="shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
                 Gửi
               </Button>
             </form>
@@ -268,14 +271,14 @@ export function ChatWidget() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-end gap-2">
-          <div className="max-w-[240px] rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-700 shadow-md">
+        <div className="flex flex-col items-end gap-3">
+          <div className="max-w-[240px] rounded-2xl border border-white/50 bg-white/90 backdrop-blur-md px-3.5 py-2 text-xs font-medium text-zinc-700 shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
             {launcherText}
           </div>
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="grid h-14 w-14 place-items-center rounded-full bg-primary text-white shadow-xl transition hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-primary/25"
+            className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-tr from-primary to-primary/80 text-white shadow-[0_5px_20px_rgba(var(--primary-rgb,34,197,94),0.4)] transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_25px_rgba(var(--primary-rgb,34,197,94),0.5)] focus:outline-none focus:ring-4 focus:ring-primary/25"
             aria-label="Mở chat tư vấn"
           >
             <svg

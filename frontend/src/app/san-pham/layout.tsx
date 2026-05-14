@@ -8,9 +8,9 @@ export default function SanPhamLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex w-full flex-1">
-      <Suspense fallback={<aside className="hidden w-72 shrink-0 border-r border-zinc-200 bg-white/70 backdrop-blur-sm md:block" />}>
-        <aside className="hidden w-72 shrink-0 border-r border-zinc-200 bg-white/70 backdrop-blur-sm md:block">
+    <div className="flex w-full flex-1 bg-[#f8fafc]">
+      <Suspense fallback={<aside className="hidden w-[280px] shrink-0 md:block" />}>
+        <aside className="hidden w-[280px] shrink-0 md:block pt-6 pl-4">
           <ProductSidebar />
         </aside>
       </Suspense>

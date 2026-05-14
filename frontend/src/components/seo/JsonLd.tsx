@@ -17,14 +17,23 @@ export function OrganizationJsonLd() {
     alternateName: "Gold Shop Midea Điện Phát",
     url: absoluteUrl(""),
     logo: absoluteUrl("/logo.png"),
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      areaServed: "VN",
+      availableLanguage: "Vietnamese",
+    },
     address: {
       "@type": "PostalAddress",
       streetAddress: "Số 6 Nguyễn Văn Cưng",
       addressLocality: "Phường Mỹ Long",
-      addressRegion: "Long Xuyên",
+      addressRegion: "Long Xuyên, An Giang",
       addressCountry: "VN",
     },
     taxID: "1602189097",
+    sameAs: [
+      absoluteUrl(""),
+    ],
   };
   return <JsonLd data={data} />;
 }
@@ -64,6 +73,50 @@ export function ProductJsonLd({
     description: description || name,
     image: image ? (image.startsWith("http") ? image : absoluteUrl(image.startsWith("/") ? image : `/${image}`)) : undefined,
     url,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "VND",
+      price: "0",
+      availability: "https://schema.org/InStock",
+      url,
+    },
+    brand: {
+      "@type": "Brand",
+      name: "Midea"
+    }
+  };
+  return <JsonLd data={data} />;
+}
+
+export function LocalBusinessJsonLd({
+  name,
+  description,
+  image,
+  url,
+  address,
+  telephone
+}: {
+  name: string;
+  description?: string;
+  image?: string;
+  url: string;
+  address?: string;
+  telephone?: string;
+}) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "HVACBusiness",
+    name,
+    description: description || name,
+    image: image ? (image.startsWith("http") ? image : absoluteUrl(image.startsWith("/") ? image : `/${image}`)) : undefined,
+    url,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: address || "Long Xuyên",
+      addressRegion: "An Giang",
+      addressCountry: "VN",
+    },
+    telephone: telephone || "0900000000",
   };
   return <JsonLd data={data} />;
 }

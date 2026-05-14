@@ -94,10 +94,10 @@ export function ProductSidebar() {
   };
 
   return (
-    <aside className="sticky top-20 hidden max-h-[calc(100vh-5rem)] w-72 shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-zinc-200 bg-white py-6 pl-4 pr-3 text-sm text-zinc-700 md:flex">
+    <div className="sticky top-24 max-h-[calc(100vh-7rem)] w-full flex-col overflow-x-hidden overflow-y-auto rounded-3xl border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] py-5 px-4 text-sm text-zinc-700 flex">
       <Tabs value={activeValue} orientation="vertical" className="flex-1">
-        <TabsList variant="line" className="w-full flex-col items-stretch gap-0">
-          <TabsTrigger value="all" className="w-full min-w-0 justify-start whitespace-normal" asChild>
+        <TabsList className="w-full flex-col items-stretch gap-1.5 bg-transparent p-0 h-auto">
+          <TabsTrigger value="all" className="w-full min-w-0 justify-start whitespace-normal rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-zinc-600 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/60 hover:text-zinc-900" asChild>
             <Link href="/san-pham" className="block break-words leading-snug">Tất cả sản phẩm</Link>
           </TabsTrigger>
           {roots.map((r) => {
@@ -117,7 +117,7 @@ export function ProductSidebar() {
                     >
                       {isExpanded ? "-" : "+"}
                     </button>
-                    <TabsTrigger value={r.id} className="min-w-0 flex-1 justify-start whitespace-normal" asChild>
+                    <TabsTrigger value={r.id} className="min-w-0 flex-1 justify-start whitespace-normal rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-zinc-600 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/60 hover:text-zinc-900" asChild>
                       <Link href={`/san-pham/danh-muc/${r.slug}`} className="block break-words leading-snug">
                         {r.name}
                       </Link>
@@ -126,10 +126,10 @@ export function ProductSidebar() {
                   {isExpanded && (
                     <div className="ml-4 flex min-w-0 flex-col border-l border-zinc-200 pl-3">
                       {children.map((c) => (
-                        <TabsTrigger key={c.id} value={c.id} className="w-full min-w-0 justify-start whitespace-normal py-1.5" asChild>
+                        <TabsTrigger key={c.id} value={c.id} className="w-full min-w-0 justify-start whitespace-normal rounded-lg px-3 py-2 text-left text-xs font-medium text-zinc-500 transition-all data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-bold hover:bg-white/60 hover:text-zinc-800" asChild>
                           <Link
                             href={`/san-pham/danh-muc/${c.slug}`}
-                            className="block break-words text-xs leading-snug"
+                            className="block break-words leading-snug"
                             title={c.name}
                           >
                             {c.name}
@@ -142,7 +142,7 @@ export function ProductSidebar() {
               );
             }
             return (
-              <TabsTrigger key={r.id} value={r.id} className="w-full min-w-0 justify-start whitespace-normal" asChild>
+              <TabsTrigger key={r.id} value={r.id} className="w-full min-w-0 justify-start whitespace-normal rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-zinc-600 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-white/60 hover:text-zinc-900" asChild>
                 <Link href={`/san-pham/danh-muc/${r.slug}`} className="block break-words leading-snug">{r.name}</Link>
               </TabsTrigger>
             );
@@ -150,9 +150,9 @@ export function ProductSidebar() {
         </TabsList>
       </Tabs>
 
-      <div className="mt-4 border-t border-zinc-200 pt-4">
+      <div className="mt-4 border-t border-black/5 pt-4">
         <details
-          className="group rounded-lg border border-zinc-200 bg-white"
+          className="group rounded-2xl border border-white/60 bg-white/50 backdrop-blur-md shadow-sm transition-all"
           open={Boolean(q || segment || capacityBtu)}
         >
           <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2">
@@ -164,10 +164,10 @@ export function ProductSidebar() {
               ▼
             </span>
           </summary>
-          <div className="border-t border-zinc-200 px-3 pb-3 pt-2">
-            <form className="space-y-3">
+          <div className="border-t border-white/40 px-3 pb-4 pt-3">
+            <form className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-zinc-700" htmlFor="sidebar-q">
+                <label className="block text-xs font-semibold text-zinc-700" htmlFor="sidebar-q">
                   Tìm theo tên sản phẩm
                 </label>
                 <input
@@ -175,19 +175,19 @@ export function ProductSidebar() {
                   name="q"
                   defaultValue={q}
                   placeholder="Nhập tên sản phẩm..."
-                  className="w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-primary"
+                  className="w-full rounded-xl border border-white/50 bg-white/70 px-3 py-2 text-xs outline-none focus:border-primary focus:bg-white transition-all shadow-inner"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-zinc-700" htmlFor="sidebar-segment">
+                <label className="block text-xs font-semibold text-zinc-700" htmlFor="sidebar-segment">
                   Dòng sản phẩm
                 </label>
                 <select
                   id="sidebar-segment"
                   name="segment"
                   defaultValue={segment}
-                  className="w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-primary"
+                  className="w-full rounded-xl border border-white/50 bg-white/70 px-3 py-2 text-xs outline-none focus:border-primary focus:bg-white transition-all shadow-inner"
                 >
                   <option value="">Tất cả dòng</option>
                   {segments.map((s) => (
@@ -199,14 +199,14 @@ export function ProductSidebar() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-zinc-700" htmlFor="sidebar-capacityBtu">
+                <label className="block text-xs font-semibold text-zinc-700" htmlFor="sidebar-capacityBtu">
                   Công suất (BTU)
                 </label>
                 <select
                   id="sidebar-capacityBtu"
                   name="capacityBtu"
                   defaultValue={capacityBtu}
-                  className="w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-primary"
+                  className="w-full rounded-xl border border-white/50 bg-white/70 px-3 py-2 text-xs outline-none focus:border-primary focus:bg-white transition-all shadow-inner"
                 >
                   <option value="">Tất cả</option>
                   <option value="9000">9000 BTU</option>
@@ -216,16 +216,16 @@ export function ProductSidebar() {
                 </select>
               </div>
 
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-2 pt-2">
                 <button
                   type="submit"
-                  className="flex-1 rounded-md bg-primary px-2.5 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+                  className="flex-1 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
                 >
-                  Lọc
+                  Lọc kết quả
                 </button>
                 <Link
                   href="/san-pham"
-                  className="flex-1 rounded-md border border-zinc-200 px-2.5 py-1.5 text-center text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+                  className="flex-1 rounded-xl border border-white/50 bg-white/60 px-3 py-2 text-center text-xs font-bold text-zinc-600 hover:bg-white hover:text-zinc-900 transition-all shadow-sm"
                 >
                   Xóa lọc
                 </Link>
@@ -234,6 +234,6 @@ export function ProductSidebar() {
           </div>
         </details>
       </div>
-    </aside>
+    </div>
   );
 }

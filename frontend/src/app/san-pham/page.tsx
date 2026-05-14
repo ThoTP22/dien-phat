@@ -6,6 +6,7 @@ import { HoverImageCarousel } from "@/components/product/HoverImageCarousel";
 import { fetchPublicProducts } from "@/services/product.service";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { absoluteUrl } from "@/lib/site-url";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 function getSpecValue(
   specs: { key?: string; name: string; value: string; unit?: string }[] | undefined,
@@ -53,20 +54,21 @@ export default async function SanPhamPage({
           { name: "Sản phẩm", url: absoluteUrl("/san-pham") },
         ]}
       />
-      <section className="border-b border-zinc-200 bg-white/70 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-4 py-6 md:px-6">
-          <nav className="mb-3 flex items-center gap-2 text-sm text-zinc-600">
-            <Link href="/" className="hover:text-primary">Trang chủ</Link>
-            <span>/</span>
-            <span className="text-zinc-800">Sản phẩm</span>
+      <section className="border-b border-white/60 bg-gradient-to-br from-white via-blue-50/50 to-sky-100/30 backdrop-blur-md relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-zinc-100/[0.2] bg-[size:20px_20px]" />
+        <div className="mx-auto max-w-6xl px-4 py-8 md:px-6 relative z-10">
+          <nav className="mb-4 flex items-center gap-2 text-sm font-medium text-zinc-500">
+            <Link href="/" className="hover:text-primary transition-colors">Trang chủ</Link>
+            <span className="text-zinc-300">/</span>
+            <span className="text-zinc-900">Sản phẩm</span>
           </nav>
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+          <div className="space-y-2 max-w-2xl">
+            <p className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-primary shadow-sm">
               Danh sách sản phẩm
             </p>
-            <h1 className="text-2xl font-semibold text-zinc-900">Sản phẩm điều hòa Midea</h1>
-            <p className="text-sm text-zinc-600">
-              Danh sách sản phẩm điều hòa Midea đang được showroom Điện Phát giới thiệu.
+            <h1 className="text-3xl font-extrabold text-zinc-900 tracking-tight sm:text-4xl drop-shadow-sm">Sản phẩm điều hòa Midea</h1>
+            <p className="text-sm sm:text-base text-zinc-600 leading-relaxed">
+              Khám phá danh sách điều hòa Midea chính hãng với mức giá tốt nhất, công suất đa dạng phù hợp cho mọi không gian sống.
             </p>
           </div>
         </div>
@@ -86,7 +88,8 @@ export default async function SanPhamPage({
           </div>
         </div>
 
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <ScrollReveal>
+        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {data.items.map((p) => {
             const specBtu = getSpecValue(p.specifications, "capacity_btu");
             const specHp = getSpecValue(p.specifications, "capacity_hp");
@@ -95,70 +98,55 @@ export default async function SanPhamPage({
             return (
               <Card
                 key={p.id}
-                className="group border-t-2 border-t-primary/70 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                className="group flex flex-col overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] relative"
               >
-                <CardHeader className="pb-2">
-                  <CardTitle className="line-clamp-2 text-sm font-semibold text-zinc-900">
+                <CardHeader className="pb-3 px-5 pt-6">
+                  <CardTitle className="line-clamp-2 text-base font-bold leading-snug text-zinc-900 group-hover:text-primary transition-colors">
                     {p.name}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <HoverImageCarousel
-                    images={p.images}
-                    fallbackAlt={p.name}
-                    wrapperClassName="aspect-[4/3] w-full rounded-md border border-zinc-200 bg-white overflow-hidden"
-                    imgClassName="h-full w-full object-cover transition group-hover:scale-[1.03]"
-                  />
+                <CardContent className="flex min-w-0 flex-1 flex-col px-5 pb-6 pt-0 space-y-4">
+                  <div className="relative w-full overflow-hidden rounded-2xl bg-zinc-50 border border-zinc-100">
+                    <HoverImageCarousel
+                      images={p.images}
+                      fallbackAlt={p.name}
+                      wrapperClassName="aspect-[4/3] w-full overflow-hidden"
+                      imgClassName="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  </div>
 
-                  {p.shortDescription ? (
-                    <p className="line-clamp-3 text-xs text-zinc-700">{p.shortDescription}</p>
-                  ) : (
-                    <p className="text-xs text-zinc-600">
-                      Nhấn xem chi tiết để xem mô tả sản phẩm.
-                    </p>
-                  )}
-
-                  <div className="flex flex-wrap gap-2 text-[11px] text-zinc-700">
+                  <div className="flex flex-wrap gap-2 text-[11px] font-bold">
                     {specTech ? (
-                      <span className="rounded-full border border-zinc-200 bg-white px-2 py-0.5">{specTech}</span>
+                      <span className="rounded-lg bg-teal-50 text-teal-700 border border-teal-100 px-2.5 py-1">{specTech}</span>
                     ) : null}
                     {specBtu ? (
-                      <span className="rounded-full border border-zinc-200 bg-white px-2 py-0.5">{specBtu}</span>
+                      <span className="rounded-lg bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1">{specBtu}</span>
                     ) : null}
                     {specHp ? (
-                      <span className="rounded-full border border-zinc-200 bg-white px-2 py-0.5">{specHp}</span>
+                      <span className="rounded-lg bg-zinc-100 text-zinc-700 border border-zinc-200 px-2.5 py-1">{specHp}</span>
                     ) : null}
                     {specGas ? (
-                      <span className="rounded-full border border-zinc-200 bg-white px-2 py-0.5">Gas {specGas}</span>
+                      <span className="rounded-lg bg-orange-50 text-orange-700 border border-orange-100 px-2.5 py-1">Gas {specGas}</span>
                     ) : null}
                   </div>
 
-                  {Array.isArray(p.images) && p.images.length > 1 ? (
-                    <div className="flex gap-1 pt-1">
-                      {p.images.slice(0, 4).map((img, idx) => (
-                        <div
-                          key={`${p.id}-${idx}`}
-                          className="h-8 w-8 overflow-hidden rounded border border-zinc-200 bg-white opacity-0 transition group-hover:opacity-100"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={img.url}
-                            alt={img.alt || p.name}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
+                  <p className="line-clamp-2 text-xs text-zinc-500 leading-relaxed min-h-[2rem]">
+                     {p.shortDescription || "Nhấn xem chi tiết để xem thêm thông tin mô tả."}
+                  </p>
 
-                  <Button asChild variant="outline" className="mt-1 w-full">
-                    <Link href={`/san-pham/${p.slug}`}>Xem chi tiết</Link>
-                  </Button>
+                  <Link
+                    href={`/san-pham/${p.slug}`}
+                    className="mt-auto inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-md transition-all duration-300 hover:brightness-110 hover:shadow-lg lg:translate-y-4 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100"
+                  >
+                    Xem chi tiết
+                  </Link>
                 </CardContent>
               </Card>
             );
           })}
         </div>
+        </ScrollReveal>
 
         <div className="mt-8 flex items-center justify-between">
           <Button asChild variant="outline" disabled={page <= 1}>

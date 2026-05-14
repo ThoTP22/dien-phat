@@ -8,6 +8,8 @@ import { fetchPublicPosts } from "@/services/post.service";
 import { fetchPublicProducts } from "@/services/product.service";
 import { HeroVideo } from "@/components/hero/HeroVideo";
 import { HoverImageCarousel } from "@/components/product/HoverImageCarousel";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { SocialProof } from "@/components/hero/SocialProof";
 
 export const dynamic = "force-dynamic";
 
@@ -134,7 +136,7 @@ export default async function Home() {
             <ul className="space-y-3">
               {[
                 "Tư vấn công suất phù hợp theo diện tích từng phòng",
-                "Lắp đặt chuẩn kỹ thuật bởi thợ được đào tạo bài bản",
+                "Lắp đặt chuẩn kỹ thuật bởi kĩ thuật viên được đào tạo bài bản",
                 "Bảo hành chính hãng Midea toàn quốc",
                 "Hỗ trợ sau mua, bảo trì và vệ sinh máy định kỳ",
               ].map((item) => (
@@ -151,13 +153,14 @@ export default async function Home() {
             <div className="flex flex-wrap gap-3 pt-1">
               <Link
                 href="/showroom"
-                className="inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition hover:brightness-110"
+                className="group relative overflow-hidden inline-flex items-center rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-white shadow-xl shadow-primary/25 transition-all hover:-translate-y-1 hover:shadow-primary/40"
               >
+                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
                 Nhận tư vấn miễn phí
               </Link>
               <Link
                 href="/san-pham"
-                className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-6 py-3 text-sm font-semibold text-zinc-700 transition hover:border-primary hover:text-primary"
+                className="inline-flex items-center rounded-full border-2 border-zinc-200 bg-white px-7 py-3.5 text-sm font-bold text-zinc-700 transition hover:border-primary hover:text-primary hover:-translate-y-1"
               >
                 Xem sản phẩm
               </Link>
@@ -183,8 +186,8 @@ export default async function Home() {
           </div>
 
           {/* RIGHT: video */}
-          <div className="order-1 md:order-2">
-            <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-zinc-100 shadow-2xl shadow-primary/10 ring-1 ring-primary/15">
+          <div className="order-1 md:order-2 relative w-full max-w-xl mx-auto md:max-w-none">
+            <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-zinc-100 shadow-2xl shadow-primary/20 ring-1 ring-white/50">
               {process.env.NEXT_PUBLIC_HERO_VIDEO_URL ? (
                 <HeroVideo
                   className="h-full w-full object-cover"
@@ -196,20 +199,28 @@ export default async function Home() {
                 </div>
               )}
             </div>
+            
+            {/* Floating Badge (Glassmorphism) */}
+            <div className="absolute -bottom-6 -left-4 sm:-left-8 z-10 flex items-center gap-3 rounded-2xl bg-white/85 backdrop-blur-xl border border-white/50 p-3 sm:p-4 shadow-2xl animate-in slide-in-from-bottom-8 fade-in duration-1000 delay-500">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-lg sm:text-xl shadow-inner">
+                ❄️
+              </div>
+              <div className="min-w-0 pr-2">
+                <p className="text-[10px] sm:text-[11px] font-bold uppercase text-primary tracking-widest opacity-90">Top 1 Bán chạy</p>
+                <p className="text-xs sm:text-sm font-bold text-zinc-900 truncate">Midea Inverter 1HP</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="danh-muc-san-pham" className="mx-auto max-w-7xl px-3 py-8 sm:py-10 md:px-4 md:py-12">
+      <ScrollReveal delay={0.1}>
+        <section id="danh-muc-san-pham" className="mx-auto max-w-7xl px-3 py-8 sm:py-10 md:px-4 md:py-12 mt-4">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-primary">
               Danh mục sản phẩm
             </span>
-            <h2 className="mt-2 text-2xl font-bold text-zinc-900 sm:text-3xl">Các nhóm điều hòa Midea</h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              Các nhóm sản phẩm điều hòa Midea đang có tại showroom Điện Phát.
-            </p>
           </div>
           <Link
             href="/san-pham"
@@ -279,11 +290,11 @@ export default async function Home() {
                             <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                           </div>
                           <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
-                            <div className="line-clamp-2 text-sm font-bold leading-snug text-zinc-900 sm:text-base">
+                            <div className="line-clamp-2 text-sm font-bold leading-snug text-zinc-900 sm:text-base group-hover:text-primary transition-colors">
                               {p.name}
                             </div>
                             {p.modelCode ? (
-                              <span className="inline-flex w-fit rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500">
+                              <span className="inline-flex w-fit rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                                 {p.modelCode}
                               </span>
                             ) : null}
@@ -306,7 +317,7 @@ export default async function Home() {
                             ) : null}
                             <Link
                               href={`/san-pham/${p.slug}`}
-                              className="mt-auto inline-flex items-center justify-center rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:brightness-95 hover:shadow-md"
+                              className="mt-auto inline-flex items-center justify-center rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white shadow-sm transition-all duration-300 hover:brightness-110 hover:shadow-md lg:translate-y-4 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100"
                             >
                               Xem chi tiết
                             </Link>
@@ -321,7 +332,11 @@ export default async function Home() {
           </div>
         )}
       </section>
+      </ScrollReveal>
 
+      <SocialProof />
+
+      <ScrollReveal yOffset={30}>
       <section className="border-y border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-3 py-8 sm:py-10 md:flex-row md:items-center md:px-4 md:py-12">
           <div className="flex-1 space-y-2">
@@ -406,7 +421,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
+      <ScrollReveal yOffset={40}>
       <section className="mx-auto max-w-7xl px-3 py-8 sm:py-10 md:px-4 md:py-12">
         <header className="mb-4 flex items-center justify-between">
           <div>
@@ -460,6 +477,7 @@ export default async function Home() {
           </div>
         )}
       </section>
+      </ScrollReveal>
     </div>
   );
 }

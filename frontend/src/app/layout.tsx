@@ -6,6 +6,7 @@ import { PublicFooter } from "@/components/layout/PublicFooter";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
+import { CustomCursor } from "@/components/ui/CustomCursor";
 
 const beVietnamPro = Be_Vietnam_Pro({
   variable: "--font-inter",
@@ -14,12 +15,12 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 const getMetadataBase = (): URL => {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL || "https://dienphat-midea.vn";
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || "https://www.mideadienphat.shop";
   const url = raw.startsWith("http") ? raw : `https://${raw}`;
   try {
     return new URL(url);
   } catch {
-    return new URL("https://dienphat-midea.vn");
+    return new URL("https://www.mideadienphat.shop");
   }
 };
 
@@ -48,6 +49,7 @@ export default function RootLayout({
       <body
         className={`${beVietnamPro.variable} antialiased text-foreground font-sans`}
       >
+        <CustomCursor />
         <OrganizationJsonLd />
         <WebSiteJsonLd />
         <div className="min-h-screen flex flex-col">

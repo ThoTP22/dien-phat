@@ -1,5 +1,5 @@
 export const SITE_URL = (() => {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL || "https://dienphat-midea.vn";
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || "https://www.mideadienphat.shop";
   return raw.startsWith("http") ? raw : `https://${raw}`;
 })();
 

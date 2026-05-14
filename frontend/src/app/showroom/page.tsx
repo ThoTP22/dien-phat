@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPublicShowroom } from "@/services/showroom.service";
+import { LocalBusinessJsonLd } from "@/components/seo/JsonLd";
+import { absoluteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +47,14 @@ export default async function ShowroomPage() {
 
   return (
     <div className="bg-zinc-50">
+      <LocalBusinessJsonLd
+        name={showroom?.name || "Showroom Gold Shop Midea Điện Phát"}
+        description={showroom?.intro || "Thông tin showroom, địa chỉ, giờ mở cửa và kênh liên hệ nhanh với Điện Phát."}
+        image={showroom?.gallery?.[0]?.url}
+        url={absoluteUrl("/showroom")}
+        address={addressText}
+        telephone={showroom?.phone}
+      />
       <section className="border-b border-zinc-200 bg-white/70 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
           <h1 className="text-2xl font-semibold text-zinc-900">
