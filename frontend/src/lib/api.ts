@@ -85,6 +85,24 @@ export const apiEndpoints = {
     updateMyTicketStatus: (id: string) => base() + `/v1/technician/my-tickets/${id}/status`,
     updateMyTicketImages: (id: string) => base() + `/v1/technician/my-tickets/${id}/images`,
     myTicketLogs: (id: string) => base() + `/v1/technician/my-tickets/${id}/logs`
+  },
+  analytics: {
+    get adminSummary() { return base() + "/v1/admin/analytics/summary"; }
+  },
+  faqs: {
+    get listPublic() { return base() + "/v1/faqs"; },
+    get adminList() { return base() + "/v1/admin/faqs"; },
+    get adminCreate() { return base() + "/v1/admin/faqs"; },
+    adminUpdate: (id: string) => base() + `/v1/admin/faqs/${id}`,
+    adminDelete: (id: string) => base() + `/v1/admin/faqs/${id}`
+  },
+  reviews: {
+    get listPublic() { return base() + "/v1/reviews"; },
+    get create() { return base() + "/v1/reviews"; },
+    get adminList() { return base() + "/v1/admin/reviews"; },
+    adminUpdate: (id: string) => base() + `/v1/admin/reviews/${id}`,
+    adminDelete: (id: string) => base() + `/v1/admin/reviews/${id}`
   }
 } as const;
+
 

@@ -48,6 +48,69 @@ export function RichTextEditor({
         class:
           "min-h-40 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
       },
+      handlePaste: (view, event) => {
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+
+        const files: File[] = [];
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          if (item.type.indexOf("image") === 0) {
+            const file = item.getAsFile();
+            if (file) files.push(file);
+          }
+        }
+
+        if (files.length > 0) {
+          event.preventDefault();
+          setUploading(true);
+          uploadImages(files, folder)
+            .then((uploaded) => {
+              uploaded.forEach((f) => {
+                const node = view.state.schema.nodes.image.create({ src: f.url, alt: f.originalName });
+                const transaction = view.state.tr.replaceSelectionWith(node);
+                view.dispatch(transaction);
+              });
+            })
+            .catch(console.error)
+            .finally(() => setUploading(false));
+          return true;
+        }
+        return false;
+      },
+      handleDrop: (view, event, slice, moved) => {
+        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+          const files: File[] = [];
+          for (let i = 0; i < event.dataTransfer.files.length; i++) {
+            const file = event.dataTransfer.files[i];
+            if (file.type.indexOf("image") === 0) {
+              files.push(file);
+            }
+          }
+          if (files.length > 0) {
+            event.preventDefault();
+            const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+            setUploading(true);
+            uploadImages(files, folder)
+              .then((uploaded) => {
+                uploaded.forEach((f) => {
+                  const node = view.state.schema.nodes.image.create({ src: f.url, alt: f.originalName });
+                  if (coordinates) {
+                    const transaction = view.state.tr.insert(coordinates.pos, node);
+                    view.dispatch(transaction);
+                  } else {
+                    const transaction = view.state.tr.replaceSelectionWith(node);
+                    view.dispatch(transaction);
+                  }
+                });
+              })
+              .catch(console.error)
+              .finally(() => setUploading(false));
+            return true;
+          }
+        }
+        return false;
+      },
     },
   });
 

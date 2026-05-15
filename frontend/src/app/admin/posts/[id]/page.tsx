@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { uploadImages } from "@/services/upload.service";
-import { fetchAdminPostDetail, updatePost } from "@/services/post.service";
+import { fetchAdminPostDetail, updatePost, type PostStatus } from "@/services/post.service";
 
 function slugify(s: string): string {
   return s
@@ -32,6 +32,8 @@ export default function AdminPostsEditPage() {
   const [contentHtml, setContentHtml] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [status, setStatus] = useState<PostStatus>("draft");
+  const [publishedAt, setPublishedAt] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -55,6 +57,12 @@ export default function AdminPostsEditPage() {
         setSummary(post.summary || "");
         setContentHtml(post.content || "");
         setCoverImageUrl(post.coverImageUrl || "");
+        setStatus((post.status as PostStatus) || "draft");
+        setPublishedAt(
+          post.publishedAt
+            ? new Date(post.publishedAt).toISOString().slice(0, 16)
+            : ""
+        );
       } catch (e) {
         if (cancelled) return;
         setError(e instanceof Error ? e.message : "Không thể tải bài viết");
@@ -82,8 +90,9 @@ export default function AdminPostsEditPage() {
     }
   };
 
-  const onSave = async () => {
+  const onSave = async (overrideStatus?: PostStatus) => {
     if (!id) return;
+    const finalStatus = overrideStatus ?? status;
     if (!canSubmit) {
       setError("Tiêu đề, slug và nội dung là bắt buộc");
       return;
@@ -97,6 +106,11 @@ export default function AdminPostsEditPage() {
         summary: summary.trim() || undefined,
         content: contentHtml,
         coverImageUrl: coverImageUrl || undefined,
+        status: finalStatus,
+        publishedAt:
+          finalStatus === "published"
+            ? publishedAt || new Date().toISOString()
+            : null,
       });
       router.push("/admin/posts");
       router.refresh();
@@ -130,9 +144,12 @@ export default function AdminPostsEditPage() {
           <Link href="/admin/posts">Quay lại</Link>
         </Button>
         <h1 className="text-xl font-semibold text-zinc-900">Sửa bài viết</h1>
-        <div className="ml-auto">
-          <Button onClick={onSave} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu thay đổi"}
+        <div className="ml-auto flex gap-2">
+          <Button variant="outline" onClick={() => onSave("draft")} disabled={saving}>
+            {saving ? "Đang lưu..." : "Lưu nháp"}
+          </Button>
+          <Button onClick={() => onSave("published")} disabled={saving}>
+            {saving ? "Đang lưu..." : "Xuất bản"}
           </Button>
         </div>
       </header>
@@ -186,6 +203,31 @@ export default function AdminPostsEditPage() {
             {coverImageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={coverImageUrl} alt="Ảnh bìa" className="h-24 w-40 rounded border object-cover" />
+            )}
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[160px]">
+              <label className="mb-1 block text-sm font-medium">Trạng thái</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as PostStatus)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="draft">🖊 Nháp</option>
+                <option value="published">✅ Xuất bản</option>
+                <option value="hidden">🚫 Ẩn</option>
+              </select>
+            </div>
+            {status === "published" && (
+              <div className="flex-1 min-w-[200px]">
+                <label className="mb-1 block text-sm font-medium">Ngày xuất bản</label>
+                <Input
+                  type="datetime-local"
+                  value={publishedAt}
+                  onChange={(e) => setPublishedAt(e.target.value)}
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">Để trống = xuất bản ngay lập tức</p>
+              </div>
             )}
           </div>
         </CardContent>

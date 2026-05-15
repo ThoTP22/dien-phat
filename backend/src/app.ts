@@ -90,6 +90,21 @@ import {
   updateMyTicketImagesHandler,
   getMyTicketLogsHandler
 } from "./controllers/technician.controller";
+import { getAnalyticsSummaryHandler } from "./controllers/analytics.controller";
+import {
+  listPublicFaqsHandler,
+  listAdminFaqsHandler,
+  createFaqHandler,
+  updateFaqHandler,
+  deleteFaqHandler,
+} from "./controllers/faq.controller";
+import {
+  listPublicReviewsHandler,
+  createReviewHandler,
+  listAdminReviewsHandler,
+  updateReviewHandler,
+  deleteReviewHandler,
+} from "./controllers/review.controller";
 
 import { rateLimit } from "./middlewares/rateLimit.middleware";
 
@@ -326,6 +341,23 @@ app.get(
   requireRole("technician"),
   getMyTicketLogsHandler
 );
+
+// Analytics summary
+app.get("/api/v1/admin/analytics/summary", requireAuth, getAnalyticsSummaryHandler);
+
+// FAQ routes
+app.get("/api/v1/faqs", listPublicFaqsHandler);
+app.get("/api/v1/admin/faqs", requireAuth, listAdminFaqsHandler);
+app.post("/api/v1/admin/faqs", requireAuth, createFaqHandler);
+app.patch("/api/v1/admin/faqs/:id", requireAuth, updateFaqHandler);
+app.delete("/api/v1/admin/faqs/:id", requireAuth, deleteFaqHandler);
+
+// Review routes
+app.get("/api/v1/reviews", listPublicReviewsHandler);
+app.post("/api/v1/reviews", rateLimit({ windowMs: 10 * 60 * 1000, max: 5, keyPrefix: "review" }), createReviewHandler);
+app.get("/api/v1/admin/reviews", requireAuth, listAdminReviewsHandler);
+app.patch("/api/v1/admin/reviews/:id", requireAuth, updateReviewHandler);
+app.delete("/api/v1/admin/reviews/:id", requireAuth, deleteReviewHandler);
 
 export default app;
 
